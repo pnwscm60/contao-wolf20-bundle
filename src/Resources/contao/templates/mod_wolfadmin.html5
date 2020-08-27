@@ -1,0 +1,283 @@
+<?php ?>
+<div class="<?= $this->class ?>  tableless login block"<?= $this->cssID ?><?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
+
+<?php if ($this->headline): ?>
+    <<?= $this->hl ?>><?= $this->headline ?></<?= $this->hl ?>>
+<?php endif; ?>
+
+<h3>User administration</h3>
+<div id="users">
+	<div class="ulink"><a href="admin.html?ued=1">Edit user</a></div>
+    <!--<div class="ulink"><a href="admin.html?unew=1">New user</a></div>-->
+    <div class="ulink"><a href="admin.html?us-ex=1">Export to MSExcel</a></div>
+</div>
+<?php //if($this->umessage){
+	//echo '<div id="usermess" style="clear:both;">'.$this->umessage.'</div>';
+//}
+?>
+<div id="ued" style="
+<?php echo $this->ued==1 ? "display:block;clear:both;":"display:none;";?>">
+<?php 
+/*$sql='SELECT *
+FROM user
+ORDER by u_nname';
+$dosql=mysql_query($sql) or die(mysql_error());
+*/?> 
+
+<div class="tbl hd" style="width:30px;">id</div><div class="tbl hd" style="width:120px;">Name</div><div class="tbl hd" style="width:120px;">Firstname</div><div class="tbl hd" style="width:130px;">City</div><div class="tbl hd" style="width:160px;">Email</div><div class="tbl hd" style="width:65px;">Role</div><div class="tbl hd" style="width:130px;">Country</div><div class="tbl hd" style="width:40px;">YoB</div><div class="tbl hd" style="width:30px;">&nbsp;</div>
+
+<?php foreach ($this->user as $us): ?>
+<form name="user" action="admin.html" class="selectform" method="post">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type='hidden' name='save' value='1'/>
+<input type='hidden' name='ued' value='1'/>
+<div class="tbl" style="width:30px;clear:left;"><?php echo $us['id']?></div>
+<div class="tbl" style="width:120px;"><input style="width:115px;margin-right:5px;" type="text" name="lastname" value="<?php echo $us['lastname']?>"></div>
+<div class="tbl" style="width:120px;"><input style="width:115px;margin-right:5px;" type="text" name="firstname" value="<?php echo $us['firstname']?>"></div>
+<div class="tbl" style="width:130px;"><input style="width:125px;margin-right:5px;" type="text" name="city" value="<?php echo $us['city']?>"></div>
+<div class="tbl fld" style="width:160px;"><input style="width:155px;margin-right:5px;" type="text" name="email" value="<?php echo $us['email']?>"></div>
+<div class="tbl fld" style="width:60px;margin-top:1px;margin-right:7px"><select name="role" style="width:65px;margin-right:5px;">
+<option value="adm" <?php if (!(strcmp("adm", $us['role']))) {echo "selected=\"selected\"";} ?>>adm</option>
+<option value="mbr" <?php if (!(strcmp("mbr", $us['role']))) {echo "selected=\"selected\"";} ?>>mbr</option>
+<option value="AX" <?php if (!(strcmp("AX", $us['role']))) {echo "selected=\"selected\"";} ?>>AX</option>
+<option value="EX" <?php if (!(strcmp("EX", $us['role']))) {echo "selected=\"selected\"";} ?>>EX</option>
+</SELECT></div>
+<div class="tbl" style="width:130px;margin-right:5px;margin-top:1px;">
+	<select id="country" name="country">
+	<option value="al" <?php if (!(strcmp("al", $us['country']))) {echo "selected=\"selected\"";} ?>>Albania</option>
+	<option value="at" <?php if (!(strcmp("at", $us['country']))) {echo "selected=\"selected\"";} ?>>Austria</option>
+	<option value="be" <?php if (!(strcmp("be", $us['country']))) {echo "selected=\"selected\"";} ?>>Belgium</option>
+	<option value="br" <?php if (!(strcmp("br", $us['country']))) {echo "selected=\"selected\"";} ?>>Brazil</option>
+	<option value="bg" <?php if (!(strcmp("bg", $us['country']))) {echo "selected=\"selected\"";} ?>>Bulgaria</option>
+	<option value="hr" <?php if (!(strcmp("hr", $us['country']))) {echo "selected=\"selected\"";} ?>>Croatia</option>
+	<option value="cy" <?php if (!(strcmp("cy", $us['country']))) {echo "selected=\"selected\"";} ?>>Cyprus</option>
+	<option value="cz" <?php if (!(strcmp("cz", $us['country']))) {echo "selected=\"selected\"";} ?>>Czech Republic</option>
+	<option value="dk" <?php if (!(strcmp("dk", $us['country']))) {echo "selected=\"selected\"";} ?>>Denmark</option>
+	<option value="ee" <?php if (!(strcmp("ee", $us['country']))) {echo "selected=\"selected\"";} ?>>Estonia</option>
+	<option value="fi" <?php if (!(strcmp("fi", $us['country']))) {echo "selected=\"selected\"";} ?>>Finland</option>
+	<option value="fr" <?php if (!(strcmp("fr", $us['country']))) {echo "selected=\"selected\"";} ?>>France</option>
+	<option value="de" <?php if (!(strcmp("de", $us['country']))) {echo "selected=\"selected\"";} ?>>Germany</option>
+	<option value="el" <?php if (!(strcmp("el", $us['country']))) {echo "selected=\"selected\"";} ?>>Greece</option>
+	<option value="hu" <?php if (!(strcmp("hu", $us['country']))) {echo "selected=\"selected\"";} ?>>Hungary</option>
+	<option value="is" <?php if (!(strcmp("is", $us['country']))) {echo "selected=\"selected\"";} ?>>Iceland</option>
+	<option value="ie" <?php if (!(strcmp("ie", $us['country']))) {echo "selected=\"selected\"";} ?>>Ireland</option>
+	<option value="it" <?php if (!(strcmp("it", $us['country']))) {echo "selected=\"selected\"";} ?>>Italy</option>
+	<option value="lv" <?php if (!(strcmp("lv", $us['country']))) {echo "selected=\"selected\"";} ?>>Latvia</option>
+	<option value="lt" <?php if (!(strcmp("lt", $us['country']))) {echo "selected=\"selected\"";} ?>>Lithuania</option>
+	<option value="lu" <?php if (!(strcmp("lu", $us['country']))) {echo "selected=\"selected\"";} ?>>Luxembourg</option>
+	<option value="mt" <?php if (!(strcmp("mt", $us['country']))) {echo "selected=\"selected\"";} ?>>Malta</option>
+	<option value="me" <?php if (!(strcmp("me", $us['country']))) {echo "selected=\"selected\"";} ?>>Montenegro</option>
+	<option value="no" <?php if (!(strcmp("no", $us['country']))) {echo "selected=\"selected\"";} ?>>Norway</option>
+	<option value="nl" <?php if (!(strcmp("nl", $us['country']))) {echo "selected=\"selected\"";} ?>>Netherlands</option>
+	<option value="nz" <?php if (!(strcmp("nz", $us['country']))) {echo "selected=\"selected\"";} ?>>New Zealand</option>
+	<option value="pl" <?php if (!(strcmp("pl", $us['country']))) {echo "selected=\"selected\"";} ?>>Poland</option>
+	<option value="pt" <?php if (!(strcmp("pt", $us['country']))) {echo "selected=\"selected\"";} ?>>Portugal</option>
+	<option value="ro" <?php if (!(strcmp("ro", $us['country']))) {echo "selected=\"selected\"";} ?>>Romania</option>
+	<option value="rs" <?php if (!(strcmp("rs", $us['country']))) {echo "selected=\"selected\"";} ?>>Serbia</option>
+	<option value="si" <?php if (!(strcmp("si", $us['country']))) {echo "selected=\"selected\"";} ?>>Slovenia</option>
+	<option value="sk" <?php if (!(strcmp("sk", $us['country']))) {echo "selected=\"selected\"";} ?>>Slovakia</option>
+	<option value="es" <?php if (!(strcmp("es", $us['country']))) {echo "selected=\"selected\"";} ?>>Spain</option>
+	<option value="se" <?php if (!(strcmp("se", $us['country']))) {echo "selected=\"selected\"";} ?>>Sweden</option>
+	<option value="ch" <?php if (!(strcmp("ch", $us['country']))) {echo "selected=\"selected\"";} ?>>Switzerland</option>
+	<option value="tr" <?php if (!(strcmp("tr", $us['country']))) {echo "selected=\"selected\"";} ?>>Turkey</option>
+	<option value="uk" <?php if (!(strcmp("uk", $us['country']))) {echo "selected=\"selected\"";} ?>>United Kingdom</option>
+	</select>
+</div>
+<div class="tbl" style="width:45px;"><input style="width:35px;margin-right:5px;" type="text" name="jg" value="<?php echo $us['yearOfBirth']?>"></div>
+	<div class="tbl" style="width:30px;clear:right;"><button type="submit" value="ok">ok</button></div>
+<input type="hidden" name="id" value="<?php echo $us['id']?>">
+</form>
+<?php endforeach;?>
+	<div style="clear:both;">&nbsp;</div>
+</div>
+
+	
+
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+
+<h3>Instrument administration</h3>
+<div class="instr">
+	<div class="ulink"><a href="admin.html?ied=1">Edit instrument</a></div>
+    <!--<div class="ulink"><a href="<?php echo $myself?>m.mainadmin&inew=1">New instrument</a></div>-->
+    <div class="ulink"><a href="admin.html?is-ex=1">Export to Excel</a></div>
+</div>
+<?php if($umessage){
+	echo '<div id="isermess" style="clear:both;">'.$imessage.'</div>';
+}
+?>
+<div id="ied" style=" <?php echo $_REQUEST['ied']==1 ? "display:block;clear:both;":"display:none;";?>">
+
+
+<div class="tbl hd" style="width:30px;">id</div>
+<div class="tbl hd" style="width:30px;">user</div>
+<div class="tbl hd" style="width:70px;">type</div>
+<div class="tbl hd" style="width:45px;">apert.</div>
+<div class="tbl hd" style="width:60px;">foc l.</div>
+<div class="tbl hd" style="width:90px;">filter</div>
+<div class="tbl hd" style="width:70px;">method</div>
+<div class="tbl hd" style="width:60px;">magn.</div>
+<div class="tbl hd" style="width:60px;">proj.</div>
+<div class="tbl hd" style="width:100px;">input</div>
+<?php foreach ($this->inst as $is):?>
+<form name="user" action="admin.html" method="post" class="selectform">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type='hidden' name='save' value='1'/>
+<input type='hidden' name='ied' value='1'/>
+<input type="hidden" name="id" value="<?php echo $is['id']?>">
+
+<div class="tbl fld" style="width:30px;clear:left;"><?php echo $is['id']?></div>
+<div class="tbl fld" style="width:30px;"><span class="hint--top" data-hint="<?php echo $is['name']?>"><?php echo $is['us']?></span></div>
+<div class="tbl" style="width:60px;">
+<select name="type" style="width:60px;">
+<option value="Refl" <?php if (!(strcmp("Refl", $is['type']))) {echo "selected=\"selected\"";} ?>>Refl</option>
+<option value="Refr" <?php if (!(strcmp("Refr", $is['type']))) {echo "selected=\"selected\"";} ?>>Refr</option>
+<option value="Bino" <?php if (!(strcmp("Bino", $is['type']))) {echo "selected=\"selected\"";} ?>>Bino</option>
+<option value="SDO" <?php if (!(strcmp("SDO", $is['type']))) {echo "selected=\"selected\"";} ?>>SDO</option>
+</select></div>
+<div class="tbl" style="width:45px;"><input style="width:40px;margin-right:5px;" type="text" name="apert" value="<?php echo $is['apert']?>"></div>
+<div class="tbl" style="width:45px;margin-right:8px;"><input style="width:40px;" type="text" name="focal" value="<?php echo $is['focal']?>"></div>
+
+<div class="tbl fld" style="width:130px;"><select name="filter" style="width:130px;margin-right:5px;margin-top:-1px;">
+<option value="unknown" <?php if (!(strcmp("unknown", $is['filter']))) {echo "selected=\"selected\"";} ?>>unknown</option>
+<option value="welder glass" <?php if (!(strcmp("welder glass", $is['filter']))) {echo "selected=\"selected\"";} ?>>welder glass</option>
+<option value="eyepiece filter" <?php if (!(strcmp("eyepiece filter", $is['filter']))) {echo "selected=\"selected\"";} ?>>eyepiece filter</option>
+<option value="mylar filter" <?php if (!(strcmp("mylar filter", $is['filter']))) {echo "selected=\"selected\"";} ?>>mylar filter</option>
+<option value="glass filter" <?php if (!(strcmp("glass filter", $is['filter']))) {echo "selected=\"selected\"";} ?>>glass filter</option>
+<option value="projection" <?php if (!(strcmp("projection", $is['filter']))) {echo "selected=\"selected\"";} ?>>projection</option>
+<option value="helioscope" <?php if (!(strcmp("helioscope", $is['filter']))) {echo "selected=\"selected\"";} ?>>helioscope</option>
+<option value="film filter" <?php if (!(strcmp("film filter", $is['filter']))) {echo "selected=\"selected\"";} ?>>film filter</option>
+<option value="HMIIF" <?php if (!(strcmp("HMIIF", $is['filter']))) {echo "selected=\"selected\"";} ?>>HMIIF</option>
+</select></div>
+<div class="tbl" style="width:90px;"><SELECT name="method" style="width:90px;margin-right:5px;">
+<option value="eyepiece" <?php if (!(strcmp("eyepiece", $is['method']))) {echo "selected=\"selected\"";} ?>>eyepiece</option>
+<option value="projection" <?php if (!(strcmp("projection", $is['method']))) {echo "selected=\"selected\"";} ?>>projection</option>
+<option value="screen" <?php if (!(strcmp("screen", $is['method']))) {echo "selected=\"selected\"";} ?>>screen</option>
+</SELECT></div>
+<div class="tbl fld" style="width:45px;"><input style="width:40px;margin-right:5px;" type="text" name="magn" value="<?php echo $is['magn']?>"></div>
+	<div class="tbl fld" style="width:48px;margin-right:8px;"><input style="width:40px;margin-right:5px;" type="text" name="proj" value="<?php echo $is['proj']?>"></div>
+<div class="tbl fld" style="width:120px;">
+<select name="input" style="width:110px;margin-right:5px;">
+<option value="0" <?php if (!(strcmp("0", $is['input']))) {echo "selected=\"selected\"";} ?>>deactivated</option>
+<option value="1" <?php if (!(strcmp("1", $is['input']))) {echo "selected=\"selected\"";} ?>>daily -W</option>
+<option value="2" <?php if (!(strcmp("2", $is['input']))) {echo "selected=\"selected\"";} ?>>daily +W</option>
+<option value="3" <?php if (!(strcmp("3", $is['input']))) {echo "selected=\"selected\"";} ?>>group -ne</option>
+<option value="4" <?php if (!(strcmp("4", $is['input']))) {echo "selected=\"selected\"";} ?>>group +ne</option>
+<option value="5" <?php if (!(strcmp("5", $is['input']))) {echo "selected=\"selected\"";} ?>>group sdo</option>
+<option value="6" <?php if (!(strcmp("6", $is['input']))) {echo "selected=\"selected\"";} ?>>draw</option>
+</select></div>
+	<div class="tbl fld" style="width:30px;"><button type="submit" value="ok">ok</button></div>
+
+</form>
+<?php endforeach;?>
+
+	<div style="margin-bottom:1em;">&nbsp;</div>
+</div>
+<?php
+if($this->saveok==1){
+	echo '<div class="okmessage" style="clear:both;margin-top:3em;color:green;">Your changes have been saved.</div>';
+}
+?>
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+	<h3>Data upload</h3>
+	<form action="admin.html" method="post" enctype="multipart/form-data" class="has-validation-callback">
+	<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+	<input type='hidden' name='upload' value='1'/>
+		<div><input type="file" name="file" size="50"></div>
+		<div><button name="upload" value="1">upload</button></div>
+	</form>
+<?php
+if($this->uploaderror!=''||$this->message!=''){
+	echo '<div class="errormessage" style="clear:both;margin-top:1em;color:red;">'.$this->uploaderror." ".$this->message.'</div>';
+}?>
+
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:1em;">&nbsp;</div>
+	<h2>Data download</h2>
+	
+<?php //Download 
+$year = date("Y");
+$heute = date("d.m.Y");
+$from = "01.01.".$year;
+$to = date("d.m.Y");?>
+
+<?php if($this->showresults==1):?>
+	<!-- nur wenn Resultatspanne angefragt wurde: -->
+<?php	
+	/*if($_REQUEST['mo']>0){
+	//echo date("n");
+	$mo = $_REQUEST['mo'];
+	$yr = $_REQUEST['yer'];
+	$intvl1 = date('Y-m-d',mktime(0,0,0,$mo,1,$yr));
+	$intvl2 = date('Y-m-t',mktime(0,0,0,$mo,1,$yr));
+	} else {   //kein Monat gewählt => Zeitspanne ist spezifiziert > datum parsen!
+	$tmp1 = explode(".", $_REQUEST['datefr']);
+	$tmp2 = explode(".", $_REQUEST['dateto']);
+	$intvl1 = $tmp1[2].'-'.$tmp1[1].'-'.$tmp1[0];
+	$intvl2 = $tmp2[2].'-'.$tmp2[1].'-'.$tmp2[0];
+	}
+*/
+
+$typ = $this->dtyp;
+//Ausgabe
+$fr = explode("-",$this->intvl1);
+$to = explode("-",$this->intvl2);
+
+echo '<p>You requested data from '.$fr[2].'.'.$fr[1].'.'.$fr[0].' to '.$to[2].'.'.$to[1].'.'.$to[0].':</p>';
+
+//ab hier switch: Wenn beo[9]=1 > daily / wenn beo[9]=2 > group
+if($this->typ==0){
+	//$sql='SELECT * from data WHERE d_datum >= "'.$intvl1.'" AND d_datum <= "'.$intvl2.'" ORDER by d_datum,d_code ';
+	//$dosql=mysql_query($sql) or die(mysql_error());
+?>
+
+<h3>Daily data</h3>
+	<div style="width:auto;margin-bottom:0.7em;margin-right:1em;float:left;"><a href="admin.html?radl=1&fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&typ=<?php echo $this->typ?>">Download as MS-Excel-File</a> </div>
+	<div style="width:auto;margin-bottom:0.7em;margin-right:1em;float:left;"><a href="javascript:window.location.href='admin.html'">go back</a></div>
+
+<?php
+} elseif($this->typ==1){
+	//$sql='SELECT * from groupdata WHERE g_datum >= "'.$intvl1.'" AND g_datum <= "'.$intvl2.'" ORDER by g_datum,g_code,g_nr ';
+	//$dosql=mysql_query($sql) or die(mysql_error());
+?>
+<h3>Group data</h3>
+<div style="width:auto;margin-bottom:0.7em;margin-right:1em;float:left;"><a href="admin.html?radl=1&fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&typ=<?php echo $this->typ?>">Download as MS-Excel-File</a></div>
+<div style="width:auto;margin-bottom:0.7em;margin-right:1em;float:left;"><a href="javascript:window.location.href='admin.html'">go back</a></div>
+
+<?php
+ } 
+ ?>
+
+	
+<?php else:?>
+<form name='choose' class="selectform" action='admin.html' method='post'>
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type="hidden" name="showresults" value="1">
+	<div style="height:30px;"><div style="float:left;text-align:right; width:200px;">Please choose datatyp:</div><div style="float:left;vertical-align:top;width:90px;text-align:left;margin-left:15px;"><SELECT name="dtyp" id="dtyp">
+	<option value="0">daily</option>
+	<option value="1">group</option>
+	</SELECT></div></div>
+	<div style="height:30px;">
+	<div style="float:left;text-align:right; width:200px; vertical-align:top;margin-right:15px;clear:left;">&nbsp;</div>
+	<div style="float:left;vertical-align:top;width:400px;text-align:left;">Please type in a date span or choose a specific month!</div>
+	</div>
+	<div style="height:30px;">
+	<div style="float:left;text-align:right; width:200px; vertical-align:top;margin-right:15px;clear:left;">Data from</div>
+	<div style="float:left;vertical-align:top;width:90px;text-align:left;"><input type="text" value="<?php echo $from?>" name="datefr" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy" autofocus="autofocus"></div>
+	<div style="float:left;text-align:right; width:30px; vertical-align:top;margin-right:10px;">to</div>
+	<div style="float:left;vertical-align:top;width:150px;text-align:left;"><input type="text" value="<?php echo $to?>" name="dateto" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy"><span style="margin-left:35px;text-align:right;">or</span></div>
+	<div style="float:left;text-align:right; width:100px;margin-left:45px;"><SELECT name="mo" size="1">
+	<?php
+		$mth=array("choose month","January","February","March","April","May","June","July","August","September","October","November","December");
+	reset($mth); ?>
+	<?php foreach($mth as $key => $val):?>
+		<option value="<?php echo $key?>"><?php echo $val?></option>
+	<?php endforeach;?>
+	</select>
+	</div>
+	<div style="padding-left:1.2em;float:left;text-align:left; width:50px;margin-left:15px;clear:right;">
+	<input type="text" value="<?php echo $year?>" name="yer" data-validation="number" size="4" data-validation-allowing="range[2000;<?php echo $year?>]">
+	</div></div>
+	<div><div style='float:left;text-align:right; width:200px; vertical-align:top;margin-right:15px;clear:left;'>&nbsp;</div><div style='margin-top:20px;'><button type='submit' name='insave' value='go'>go</button></div></div>
+	<!-- Wenn Monat gewählt > Monatsabfrage, ansonsten spezifische Datumsabfrage -->
+    </p>
+</form>
+<?php endif;?>
