@@ -1,0 +1,80 @@
+<h1>Data entry</h1>
+
+<?php //if ($this->wolfdata): foreach ($this->wolfdata as $wolf): ?>
+<?php
+if($this->dailysave==1){ ?>
+<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+	<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+	<div class="okmessage">Data have been saved in daily database</div></div>
+<?php }
+if($this->groupsave==1){ ?>
+<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+	<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+	<div class="okmessage">Data have been saved in group database</div></div>
+<?php }
+//endif;
+// Falls zurückgeleitet > instrument setzen
+if($this->inst){
+	$code = $this->inst;
+}
+// Im Objekt-Kontext
+$this->import('FrontendUser', 'User');
+$userid = $this->User->id;
+
+//Informationen zum Observer
+$sql="SELECT * from tl_member WHERE id = ".$userid;
+//echo $sql."<br/>";
+echo "<p style='clear:left;'>Observer:<br/>";
+$beob=mysql_query($sql) or die(mysql_error());
+$beo=mysql_fetch_row($beob);
+echo "[".$beo[0]."] ".$beo[3]." ".$beo[2].", ".$beo[9]." (".strtoupper($beo[11]).")<br/>";
+?>
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+<?php
+
+
+//SQL: alle Instrumente dieses Beobachters:
+$sql="SELECT * from tl_instrument WHERE i_id=".$userid." AND i_inputpref!=0";
+//echo $sql;
+$instr=mysql_query($sql) or die(mysql_error());?>
+<form name='choose' action='instrument2.html' method='post'>
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<?php
+if(mysql_num_rows($instr)==0){
+	echo "<p>There are no active instruments for your id in our database.<br/>Please activate an instrument or request a new instrument entry by the webmaster!</p>";
+	} else {
+	if($o==1){
+	echo '<div style="display:block;width:400px;color:red;padding:4px; background-color:rgba(255,0,0,0.2);border:solid thin red;margin-left:218px;margin-bottom:1em;">Input of data for the date choosen is not possible (entry is allowed only 1 month past until 10th of the current month). Please choose a valide date!</div>';	
+	} 
+	if($this->du==1){
+	?>
+	<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+	<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+	<div class="ermessage">You tried to enter data for this instrument with identical time and date (double entry). Please choose a valide date!</div>	
+	<?php }
+	if($sd==1){
+	echo '<div style="display:block;width:400px;color:red;padding:4px; border:solid thin red; background-color:rgba(255,0,0,0.2); margin-left:218px;margin-bottom:1em;">SDO-Images are available from yesterday backwards. Please choose a valide date!</div>';	
+	}
+	?>
+	<div style='height:50px;width:auto;' class='wolfform'>
+	<div style='float:left;text-align:right; width:160px; padding-top:4px;vertical-align:middle;margin-right:15px;'>Choose your instrument</div>
+	<div style='vertical-align:top;width:300px;text-align:left;clear:right; float:left;' class='selectform'>
+	<SELECT name='inst' size='1' class=''>
+	<?php
+	while($ins=mysql_fetch_row($instr)){
+		?>
+		<option value="<?php echo $ins[0]?>" <?php if (!strcmp($code, $ins[0])) {echo "selected=\"selected\"";} ?>><?php echo $ins[4].' '.$ins[5].'/'.$ins[6].' '.$ins[7].' Mag. '.$ins[9]?></option>
+        <?php
+		}
+	?>
+	</SELECT></div></div>
+	<?php $heute = date("d.m.Y");?>
+	
+
+	<div style="height:30px;" class="wolfform"><div style="float:left;text-align:right; width:160px; vertical-align:top;padding-top:4px;margin-right:15px;clear:left;">Data from</div><div  class="container-4"><input type="text" value="<?php echo $heute?>" name="cdate" data-validation="birthdate" data-validation-format="dd.mm.yyyy" autofocus></div></div>
+	<div><div style='float:left;text-align:right; width:160px; vertical-align:top;margin-right:15px;clear:left;'>&nbsp;</div><div style='margin-top:20px;'><button type='submit' name='insave' value='go'>go</button></div></div>
+    <?php
+	}
+	?>
+    
+</form>
