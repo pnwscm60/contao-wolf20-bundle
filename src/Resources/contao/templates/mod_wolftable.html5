@@ -1,0 +1,217 @@
+<?php
+if($_REQUEST['year']==''){
+	$year = '1849';
+} else {
+	$year = $_REQUEST['year'];
+}
+if($_REQUEST['sobs']==''){
+	$sobs = '0';
+} else {
+	$sobs = $_REQUEST['sobs'];
+}
+if($_REQUEST['hy']==''){
+	$hy = 1;
+} else {
+	if($_REQUEST['hy']=='1'){
+	$hy = 1;
+	} else {
+	$hy = 7;	
+	}
+}
+?>
+<h1>Sonnenflecken-Beobachtungen</h1>
+<!--<p>Discover the original data from the Rudolf Wolf sourcebook. On each page, you can see the full dataset of the original sourcebook of one half-year.</p> -->
+<?php
+$ym10=$year-10;
+$ym1=$year-1;
+$yp10=$year+10;
+$yp1=$year+1;
+?>
+<div id="yearpick">
+	<div id="ypick">
+   
+    <!--<div class="ypc1"><a href="#" onClick="m10()" id="m10" class="but">-10</a></div>-->
+    <button type="button" id="m10">-10</button>
+    <button type="button" id="m1">-1</button>
+    <!--<div class="ypc0"><a href="#" onClick="m1()" id="m1" class="but">-1</a></div>-->
+	<div id="year"><?php echo $year?></div>
+   <button type="button" id="p1">+1</button>
+    <button type="button" id="p10">+10</button>
+    <!--<div class="ypc0"><a href="#" onClick="p1()" id="p1" class="but">+1</a></div>
+    <div class="ypc1"><a href="#" onClick="p10()" id="p10" class="but">+10</a></div>-->
+    </div>
+
+<?php
+    if($hy==1){
+		$hyy="next half-year";
+		$hyact=7;
+	} else {
+		$hyy="previous half-year";
+		$hyact=1;		
+	}
+    ?>
+	<!--<div id="hypick">
+		<a href="#" onClick="hyear()" id="hyearr" class="but"><?php echo $hyy?></a>
+	</div> -->
+    <button type="button" id="hyear"><?php echo $hyy?></button>
+    <?php
+    if($sobs==1){
+		$sob="hide standardobserver";
+		$sobb=0;
+	} else {
+		$sob="show standardobserver";
+		$sobb=1;		
+	}
+    ?>
+    <!--<div id="sobs">
+		<a href="#" onClick="sobs()" id="sobs" class="but"><?php echo $sob?></a>
+	</div>-->
+	<button type="button" id="sobs"><?php echo $sob?></button>
+<?php
+$sql="SELECT * from tl_wsby WHERE wsby_y = ".$year;
+$s0m=mysql_query($sql) or die(mysql_error());
+$s0=mysql_fetch_row($s0m);
+$sql0="SELECT AVG(wsb_r) as mean from tl_wsb WHERE wsb_y = ".$year;
+$s0mm=mysql_query($sql0) or die(mysql_error());
+$s00=mysql_fetch_row($s0mm);
+?>    
+   <div id="ymean"><?php echo $s0[4]?> / <span style="color:rgba(231,91,22,1.00);"><?php echo number_format($s00[0],1)?></span> / <?php echo $s0[5]?></div>
+</div>
+
+<div class="sb sp0">
+<div class="sb tit">&nbsp;</div>
+<?php
+for($i=1; $i <= 31; $i++) {
+ echo '<div class="sb dayl">'. $i .'</div>';
+}
+echo '<div class="sb foot0">M.</div>';
+?>
+</div>
+
+<?php // Spalten 1-6 als Schleife
+$y = $year;
+$hye = $hy+5;
+?>
+<?php
+for($i=$hy; $i <= $hye; $i++) {
+	$ii=$i+43;
+?> 
+<div class="sb sp">
+<div class="sb tit1"><?php echo "&#85".$ii;?></div>
+<?php
+//Daten aus Tabelle
+$sql="SELECT *,wsbo_c from tl_wsb LEFT JOIN tl_wsbo ON wsb_oid = tl_wsbo.id WHERE wsb_y = ".$y." and wsb_m = ".$i." order by wsb_d;";
+$sql2="SELECT wsbm_ro from tl_wsbm WHERE wsbm_y = ".$y." and wsbm_m = ".$i."";
+$sql3="SELECT AVG(wsb_r) as mean from tl_wsb WHERE wsb_y = ".$y." and wsb_m = ".$i."";
+$sql4="SELECT wsbm_rw from tl_wsbm WHERE wsbm_y = ".$y." and wsbm_m = ".$i."";
+//echo $sql."<br/>";
+$s1m=mysql_query($sql) or die(mysql_error());
+$s2m=mysql_query($sql2) or die(mysql_error());
+$s3m=mysql_query($sql3) or die(mysql_error());
+$s4m=mysql_query($sql4) or die(mysql_error());
+$z=0;
+$s2=mysql_fetch_row($s2m);
+$s3=mysql_fetch_row($s3m);
+$s4=mysql_fetch_row($s4m);
+while($s1=mysql_fetch_row($s1m)){
+	$z=$z+1;
+?>
+<?php if(($s1[15]=="ws0001"||$s1[15]=="ws0002") && $sobs==1){
+	echo '<div class="sbw obs">';
+} else {
+	echo '<div class="sb obs">';
+} ?>
+	<?php echo $s1[7]; ?>
+</div>
+<?php if(($s1[15]=="ws0001"||$s1[15]=="ws0002") && $sobs==1){
+	echo '<div class="sbw grf">';
+} else {
+	echo '<div class="sb grf">';
+} ?>
+	<?php echo $s1[8]." &#x2219; ". $s1[9] ?>
+</div>
+<?php if(($s1[15]=="ws0001"||$s1[15]=="ws0002") && $sobs==1){
+	echo '<div class="sbw rz">';
+} else {
+	echo '<div class="sb rz">';
+} ?><?php echo $s1[10]; ?>
+</div>
+<div class="sb cd">
+<?php 
+if($s1[11]==1){
+	echo '&#x2022;';	
+}
+if($s1[11]==2){
+	echo '&#x2021;';
+}
+if($s1[11]==3){
+	echo '&#x25E6;';	
+}
+	 ?>
+</div>
+<?php } 
+$marg = (31-$z)*16+6;
+$margin = "margin-top:".$marg."px";
+?>
+<div class="sb foot1" style=" <?php echo $margin;?>"><?php echo $s2[0]?> <span style="color:rgba(231,91,22,1.00);padding:0 4px;"><?php echo number_format($s3[0],1)?></span> <?php echo $s4[0]?></div>
+</div>
+<?php
+}
+?>
+<div class="sb sp00">
+<div class="sb tit">&nbsp;</div>
+<?php
+for($i=1; $i <= 31; $i++) {
+	echo '<div class="sb dayl">'.$i.'</div>';
+}
+echo '<div class="sb foot0">M.</div>';
+?>
+</div>
+<?php
+$sql="SELECT * from tl_wsbo WHERE wsbo_y = ".$y." ORDER BY wsbo_c;";
+$com=mysql_query($sql) or die(mysql_error());
+?>
+<div style="clear:both;">&nbsp;</div>
+<div class="containerfoot">
+<div class="links">Bemerkungen:
+<?php
+while($co=mysql_fetch_row($com)){
+	echo '<div class="com"><div class="c1">'.$co[5].'</div><div class="c2">'.$co[7].'</div><div class="c3">'.($co[6]!=NULL ? "= ".$co[6] : '').'</div><div class="c4">'.$co[8].'</div></div>';
+}
+?>
+</div>
+<div class="rechts">Flags:
+<div class="flag">&#x2022; consistent with r=k&#x2219;(10&#x2219;g+f)</div>
+<div class="flag">&#x2021; numerically interpolated</div>
+<div class="flag">&#x25E6; missing</div>
+</div>
+</div>
+
+<div class="clear">&nbsp;</div>
+
+<?php
+/*
+*/
+	?>
+
+
+<script type="text/ecmascript">
+$("#m1").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $ym1?>&hy=<?php echo $hy?>&sobs=<?php echo $sobs?>';
+});
+$("#m10").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $ym10?>&hy=<?php echo $hy?>&sobs=<?php echo $sobs?>';
+});
+$("#p1").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $yp1?>&hy=<?php echo $hy?>&sobs=<?php echo $sobs?>';
+});
+$("#p10").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $yp10?>&hy=<?php echo $hy?>&sobs=<?php echo $sobs?>';
+});
+$("#hyear").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $year?>&hy=<?php echo $hyact?>&sobs=<?php echo $sobs?>';
+});
+$("#sobs").click(function(){
+	window.location = 'data-tables.html?year=<?php echo $year?>&hy=<?php echo $hy?>&sobs=<?php echo $sobb?>';
+});
+</script>
