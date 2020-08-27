@@ -1,0 +1,73 @@
+<?php ?>
+<div class="<?= $this->class ?>  tableless login block"<?= $this->cssID ?><?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
+
+<?php if ($this->headline): ?>
+    <<?= $this->hl ?>><?= $this->headline ?></<?= $this->hl ?>>
+<?php endif; ?>
+
+
+<?
+//SQL: Daten des Beobachters
+//$sql="SELECT * from user WHERE u_id=".$_SESSION['u_id'].";";
+//$us=mysql_query($sql) or die(mysql_error());?>
+<form name='choose' id='pw' class='selectform' action='profil.html' method='post' style='margin-bottom:2em;'>
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type='hidden' name='save' value='1'/>
+
+<?php foreach ($this->user as $user):?>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Id</div><div><input name="id" size="4" value="<?php echo $user['id']?>" readonly ></div>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Lastname *</div><div><input id="lastname" name="lastname" size="30" value="<?php echo $user['lastname']?>" data-validation="custom" data-validation-regexp="^([ \wÄÖÜäöüéèàç.-]*)$"></div>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Firstname *</div><div><input id="firstname" name="firstname" size="30" value="<?php echo $user['firstname']?>" data-validation="custom" data-validation-regexp="^([ \wÄÖÜäöüéèàç.-]*)$"></div>
+<!--<div style="clear:both;font-size:11px;">Namen können nur durch Admin geändert werden</div>-->
+<div style="clear:both;width:100px;margin-right:1em;float:left;">City</div><div><input name="city" size="30" value="<?php echo $user['city']?>" data-validation="custom" data-validation-regexp="^([\wÄÖÜäöüéèàç.-]*)$"></div>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Country</div><div>
+<select id="country" name="country">
+	<option value="al" <?php if (!(strcmp("al", $user['country']))) {echo "selected=\"selected\"";} ?>>Albania</option>
+	<option value="at" <?php if (!(strcmp("at", $user['country']))) {echo "selected=\"selected\"";} ?>>Austria</option>
+	<option value="be" <?php if (!(strcmp("be", $user['country']))) {echo "selected=\"selected\"";} ?>>Belgium</option>
+	<option value="bg" <?php if (!(strcmp("bg", $user['country']))) {echo "selected=\"selected\"";} ?>>Bulgaria</option>
+	<option value="hr" <?php if (!(strcmp("hr", $user['country']))) {echo "selected=\"selected\"";} ?>>Croatia</option>
+	<option value="cy" <?php if (!(strcmp("cy", $user['country']))) {echo "selected=\"selected\"";} ?>>Cyprus</option>
+	<option value="cz" <?php if (!(strcmp("cz", $user['country']))) {echo "selected=\"selected\"";} ?>>Czech Republic</option>
+	<option value="dk" <?php if (!(strcmp("dk", $user['country']))) {echo "selected=\"selected\"";} ?>>Denmark</option>
+	<option value="ee" <?php if (!(strcmp("ee", $user['country']))) {echo "selected=\"selected\"";} ?>>Estonia</option>
+	<option value="fi" <?php if (!(strcmp("fi", $user['country']))) {echo "selected=\"selected\"";} ?>>Finland</option>
+	<option value="fr" <?php if (!(strcmp("fr", $user['country']))) {echo "selected=\"selected\"";} ?>>France</option>
+	<option value="de" <?php if (!(strcmp("de", $user['country']))) {echo "selected=\"selected\"";} ?>>Germany</option>
+	<option value="el" <?php if (!(strcmp("el", $user['country']))) {echo "selected=\"selected\"";} ?>>Greece</option>
+	<option value="hu" <?php if (!(strcmp("hu", $user['country']))) {echo "selected=\"selected\"";} ?>>Hungary</option>
+	<option value="is" <?php if (!(strcmp("is", $user['country']))) {echo "selected=\"selected\"";} ?>>Iceland</option>
+	<option value="ie" <?php if (!(strcmp("ie", $user['country']))) {echo "selected=\"selected\"";} ?>>Ireland</option>
+	<option value="it" <?php if (!(strcmp("it", $user['country']))) {echo "selected=\"selected\"";} ?>>Italy</option>
+	<option value="lv" <?php if (!(strcmp("lv", $user['country']))) {echo "selected=\"selected\"";} ?>>Latvia</option>
+	<option value="lt" <?php if (!(strcmp("lt", $user['country']))) {echo "selected=\"selected\"";} ?>>Lithuania</option>
+	<option value="lu" <?php if (!(strcmp("lu", $user['country']))) {echo "selected=\"selected\"";} ?>>Luxembourg</option>
+	<option value="mt" <?php if (!(strcmp("mt", $user['country']))) {echo "selected=\"selected\"";} ?>>Malta</option>
+	<option value="me" <?php if (!(strcmp("me", $user['country']))) {echo "selected=\"selected\"";} ?>>Montenegro</option>
+	<option value="no" <?php if (!(strcmp("no", $user['country']))) {echo "selected=\"selected\"";} ?>>Norway</option>
+	<option value="nl" <?php if (!(strcmp("nl", $user['country']))) {echo "selected=\"selected\"";} ?>>Netherlands</option>
+	<option value="pl" <?php if (!(strcmp("pl", $user['country']))) {echo "selected=\"selected\"";} ?>>Poland</option>
+	<option value="pt" <?php if (!(strcmp("pt", $user['country']))) {echo "selected=\"selected\"";} ?>>Portugal</option>
+	<option value="ro" <?php if (!(strcmp("ro", $user['country']))) {echo "selected=\"selected\"";} ?>>Romania</option>
+	<option value="rs" <?php if (!(strcmp("rs", $user['country']))) {echo "selected=\"selected\"";} ?>>Serbia</option>
+	<option value="si" <?php if (!(strcmp("si", $user['country']))) {echo "selected=\"selected\"";} ?>>Slovenia</option>
+	<option value="sk" <?php if (!(strcmp("sk", $user['country']))) {echo "selected=\"selected\"";} ?>>Slovakia</option>
+	<option value="es" <?php if (!(strcmp("es", $user['country']))) {echo "selected=\"selected\"";} ?>>Spain</option>
+	<option value="se" <?php if (!(strcmp("se", $user['country']))) {echo "selected=\"selected\"";} ?>>Sweden</option>
+	<option value="ch" <?php if (!(strcmp("ch", $user['country']))) {echo "selected=\"selected\"";} ?>>Switzerland</option>
+	<option value="tr" <?php if (!(strcmp("tr", $user['country']))) {echo "selected=\"selected\"";} ?>>Turkey</option>
+	<option value="uk" <?php if (!(strcmp("uk", $user['country']))) {echo "selected=\"selected\"";} ?>>United Kingdom</option>
+	</select>
+</div>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Year of birth</div><div><input name="jg" size="5" value="<?php echo $user['yearOfBirth']?>" data-validation="custom" data-validation-regexp="^([12][0-9][0-9][0-9])$"></div>
+<div style="clear:both;width:100px;margin-right:1em;float:left;">Email *</div><div><input name="email" size="40" value="<?php echo $user['email']?>" data-validation="custom" data-validation-regexp="^[\w.-@]*$"></div>
+
+	<div style="clear:both;float:left;width:100px;">&nbsp;</div><div style="float:left;margin-left:15px;margin-top:10px;"><button type="submit" name="go" value="save">save</button><button type="reset" value="reset">reset</button></div>
+</form>
+<?php
+	endforeach;
+if($this->saveok==1){
+	echo '<div class="okmessage" style="clear:both;margin-top:3em;color:green;">Your changes have been saved.</div>';
+}
+?>
+</div>
