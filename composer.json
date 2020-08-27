@@ -24,7 +24,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Pnwscm60\\WolfBundle\\": "src/"
+            "Pnwscm60\\Wolf20Bundle\\": "src/"
         }
     },
     "classmap": [
@@ -37,6 +37,6 @@
                    "src/Resources/contao/templates/"
 		],
     "extra": {
-         "contao-manager-plugin": "Pnwscm60\\WolfBundle\\ContaoManager\\Plugin"
+         "contao-manager-plugin": "Pnwscm60\\Wolf20Bundle\\ContaoManager\\Plugin"
     }
 }
