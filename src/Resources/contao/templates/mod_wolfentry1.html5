@@ -1,0 +1,868 @@
+
+<h1>Data entry</h1>
+<?php
+
+unset($datum,$cdate);
+if($_REQUEST['ch']==1){
+	//echo 1;
+	$fl=1;
+	};
+
+if($_REQUEST['cdate']!=""){
+   $datum=$_REQUEST['cdate'];	
+} elseif($_REQUEST['datum']!=""){
+	$datum=	$_REQUEST['datum'];
+}
+$dp = explode(".",$datum);
+$datforfile = $dp[2].$dp[1].$dp[0];
+if($_REQUEST['datedef']!=""){
+	$datedef=$_REQUEST['datedef'];
+	}
+if($_REQUEST['g']!=""){
+	$g=	$_REQUEST['g'];
+}
+if($_REQUEST['UT']!=""){
+	$ut=$_REQUEST['UT'];
+}
+if($_REQUEST['qu']!=""){
+	$qu=$_REQUEST['qu'];
+}
+if($_REQUEST['prefix']!=""){
+	$prefix=$_REQUEST['prefix'];
+}
+//echo "Q=".$_REQUEST['qu'];
+
+
+//jetzt zuerst das Instrument abfragen, welches gewählt wurde
+
+if(isset($code)){
+	$instcode=$code;
+	} else {
+if(isset($_REQUEST['inst'])){
+	$instcode=$_REQUEST['inst'];
+	} else {
+	echo "Error: Kein Instrument gewählt ...";
+	break;
+	}
+	}
+
+
+$ccdate=explode("-",$_REQUEST['cdate']);
+$cdate=$ccdate[2].".".$ccdate[1].".".$ccdate[0];
+//Instrument ist gewählt, User gibt es: Daten bereitstellen
+$sql="SELECT * from tl_instrument, tl_member WHERE tl_instrument.id=".$instcode." AND tl_member.id = i_id";
+//echo $sql."<br/>";
+echo "<p>Observer / Instrument:<br/>";
+$beob=mysql_query($sql) or die(mysql_error());
+$beo=mysql_fetch_row($beob);
+echo "[".$beo[3]."] ".$beo[16]." ".$beo[15].", ".$beo[22]." (".strtoupper($beo[24]).")<br/>";
+echo "[".$beo[0]."] ".$beo[3]." ".$beo[4]." ".$beo[5]." / ".$beo[6].", Mag. ".$beo[9]."</p>";
+?>
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+<?php
+$part = explode(".",$datum);
+$ht = mktime(0,0,0,date("n"),date("j"),date("Y"));
+//echo $ht." ";
+$at = mktime(0,0,0,intval($part[1]),intval($part[0]),intval($part[2]));
+//echo $at;
+if(date("n")==1){
+	$lt = mktime(0,0,0,12,1,(date("Y")-1));
+	$lt2 = mktime(0,0,0,1,1,date("Y"));
+} else {
+	$lt = mktime(0,0,0,(date("n")-1),1,date("Y"));
+	$lt2 = mktime(0,0,0,date("n"),1,date("Y"));
+}
+$lt3 = mktime(0,0,0,12,31,2013);
+// 
+
+if($beo[11]==5){
+$lim = $ht;
+	if($at>$lim){
+		//zu neu, da gibt es noch keine Bilder
+			$sd=1;
+		echo "<script language=javascript>location.assign('instrument.html?sd=1&inst=".$instcode."');</script>";
+	}
+if($fl!=1) {
+	
+	$dparse = $dp[2]."-".$dp[1]."-".$dp[0];
+	//echo 'files/institute/sdoimg/'.$dp[2].$dp[1].$dp[0].'_2048.jpg';
+	echo '<script language=javascript> window.open("files/institute/sdoimg/'.$dp[2].$dp[1].$dp[0].'_2048.jpg", null, "height=2048, width=2048, toolbar=0, location=0, status=0")
+    </script>';
+} 
+}
+//Bild öffnen damit man dann Gruppen zählen kann ...
+if($beo[11]==6 && $fl==1){
+	$dp = explode(".",$datedef);
+	echo '<script language=javascript> window.open("files/institute/draws/'.$beo[0]."_".$dp[2].$dp[1].$dp[0]."_".$ut.'_2048.jpg", null, "height=2048, width=2048, toolbar=0, location=0, status=0")
+    //</script>';
+}
+
+//ab hier switch: Wenn beo[9]=1 > daily / wenn beo[9]=2 > group
+if($beo[11]==1||$beo[11]==2){
+?> <h3>Daily input form</h3>
+<!-- Zuerst Datum prüfen > maximal Vormonat  -->
+<?php  
+//Wenn zu alt > redirect zu e.main
+if (date("j")>10) {
+$lt = $lt2;
+}
+if ($at < $lt) {
+	$o=1;
+echo "<script language=javascript>location.assign('instument.html?o=1&inst=".$instcode."');</script>";	
+}
+
+?>
+<form name="data entry" id="date-form" action="instrument.html" method="post">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<div style="height:41px;text-align:bottom;">
+<div style="float:left;width:80px;line-height:30px;vertical-align:bottom">Basics</div>
+<div style="width:600px;clear:right;line-height:30px;vertical-align:bottom">
+
+<div style="float:left;">Date: </div><div style="float:left;margin-left:0.3em;"><span class="hint--top" data-hint="dd.mm.yyyy"><input type="text" data-validation="birthdate" data-validation-format="dd.mm.yyyy" data-validation-error-msg="invalid date" id="date" name="datedef" value="<?php echo $datum?>"/></span></div>
+
+<div style="float:left;margin-left:1em;margin-right:0.3em;">UT: </div><div style="float:left;"><span class="hint--top" data-hint="hhmm"><input type="number" style="width:4em;margin-right:1em;margin-left:0;"  data-validation="custom" data-validation-error-msg="invalid UT" data-validation-regexp="^([0-1][0-9][0-5][0-9]|2[0-3][0-5][0-9])$" autofocus value="<?php echo $ut?>" id="ut" size="5" name="UT" /></span></div>
+
+<div style="float:left;margin-left:1em;margin-right:0.3em;">Q: </div><div style="float:left;"><span class="hint--top" data-hint="1-5 / missing=9"><input style="width:3em;margin-right:1em;margin-left:0;"  type="number" data-validation="custom" data-validation-error-msg="invalid Q" value="<?php echo $qu?>" data-validation-regexp="^([123459])$" id="qu" size="2" name="qu"/></span></div>
+
+</div></div>
+
+<div style="height:41px;vertical-align:bottom;">
+<div style="float:left;width:80px;clear:left;line-height:30px;vertical-align:bottom;margin-top:3px;">Wolf Number</div>
+<div style="width:600px;clear:right;line-height:30px;vertical-align:bottom">
+<div style="float:left;">g: </div><div style="float:left;margin-left:0.3em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:3em;margin-right:1em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid g" id="g" size="4" name="g"/></span>
+</div>
+<div style="float:left;margin-left:1em;">f: </div><div style="float:left;margin-left:0.3em;"><span class="hint--top" data-hint="0-600"><input type="number" style="width:3em;margin-right:1em;margin-left:0;"   data-validation="custom" data-validation-regexp="^([0-9]|[1-9][0-9]|[1-5][0-9][0-9]|600)$" data-validation-error-msg="invalid f" id="f" size="6" name="f"/></span>
+</div></div></div>
+<?php if($beo[11]==2){ ?>
+<div style="height:41px;vertical-align:bottom;">
+<div style="float:left;width:80px;clear:left;line-height:30px;vertical-align:bottom;margin-top:2px;">Waldmeier</div>
+<div style="width:750px;clear:right;line-height:30px;vertical-align:bottom">
+<div style="float:left;">A: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierA" size="3" name="A"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">B: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierB" size="3" name="B"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">C: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierC" size="3" name="C"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">D: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierD" size="3" name="D"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">E: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierE" size="3" name="E"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">F: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierF" size="3" name="F"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">G: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierG" size="3" name="G"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">H: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierH" size="3" name="H"/></span>
+</div>
+<div style="float:left;margin-left:0.4em;">J: </div><div style="float:left;margin-left:0.2em;"><span class="hint--top" data-hint="0-30"><input type="number" style="width:1.9em;margin-right:0.3em;margin-left:0;"  data-validation="custom" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" data-validation-error-msg="invalid number" id="WaldmeierJ" size="3" name="J"/></span>
+</div>
+</div></div>
+<?php } ?>
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;padding-top:1.5em;">&nbsp;</div>
+<div style="width:600px;height:40px;clear:right;">
+<input type="hidden" name="code" value="<?php echo $instcode?>"/>
+<input type="hidden" name="etyp" value="d"/>
+	<button type="submit" name="daysave" value="save" style="margin-top:10px;">save</button>
+	<button type = "reset" name="erase" value="reset">reset</button></div>
+</form>
+<div style="width:100%;clear:left;height:0;padding-top:1.5em;padding-bottom:0.5em;">&nbsp;</div>
+<?php
+} elseif($beo[11]==3||$beo[11]==4||$beo[11]==5||$beo[11]==6){
+	// Wenn Datum nicht d-1 > sdo nicht möglich	
+?>
+<div style="float:left;"><h3 style="margin-top:0;">Group input form</h3></div>
+<?php
+
+
+
+if($_SESSION['autosave']=="off"){
+	echo "<div style='float:right;color:red;'>Data will not be saved in daily database!</div>";
+}
+if($fl==1){
+	echo '<form name="data entry" id="date-form" action="instrument.html"
+	method="post">';
+	echo '<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">';
+} else {
+	echo '<form name="data entry" id="date-form" action="instrument2.html" ';
+	if($beo[11]==6){
+		//echo ' enctype="multipart/form-data" ';
+	}
+	echo 'method="post">';
+	echo '<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">';
+}
+?>
+<div style="height:41px;text-align:bottom;clear:left;">
+<?php
+if($fl==1){ //Daten nur noch darstellen und Gruppenteil ausgeben
+	// Dublettenabfrage für group : gibt es datensatz mit == ut == code und ==date?
+	//parse date
+	$dp = explode(".",$datedef);
+	$dparse = $dp[2]."-".$dp[1]."-".$dp[0];
+	$sql = "SELECT * from tl_groupdata WHERE g_datum='".$dparse."' AND g_ut = ".$ut." AND g_code=".$beo[0];
+	$dosql = mysql_query($sql) or die(mysql_error());
+	if(mysql_num_rows($dosql)>0){
+		// Achtung: Dublette
+		echo "dublette";
+		$du=1;
+		echo "<script language=javascript>location.assign('instrument.html?du=1&inst=".$instcode."');</script>";	
+
+	}
+	/*$sql = "SELECT * from tl_sdodata WHERE s_datum='".$dparse."' AND s_ut = ".$ut." AND s_code=".$beo[0];
+	$dosql = mysql_query($sql) or die(mysql_error());
+	if(mysql_num_rows($dosql)>0){
+		// Achtung: Dublette
+		echo "dublette";
+		$du=1;
+		echo "<script language=javascript>location.assign('index.php?do=e.main&du=1&inst=".$instcode."');</script>";	
+	}
+	//Offenbar keine Dublette > also Bild holen
+	*/
+?>
+<div style="float:left;width:80px;line-height:30px;vertical-align:bottom">Basics</div>
+<div style="width:600px;clear:right;line-height:30px;vertical-align:bottom">
+
+<div style="float:left;">Date: </div><div style="float:left;margin-left:0.3em;"><input type="text" id="date" size="10" name="datum" value="<?php echo $datedef?>" readonly/></div>
+
+<?php if ($beo[11]==5) { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">UT: </div><div style="float:left;"><input type="text"  value="0800" id="ut" size="4" name="UT" readonly /></div>
+<?php } else { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">UT: </div><div style="float:left;"><input type="text"  value="<?php echo $ut?>" id="ut" size="4" name="UT" readonly /></div>
+<?php } ?>
+<?php if ($beo[11]==5) { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">Q: </div><div style="float:left;"><input type="text" value="1" id="qu" size="2" name="qu" readonly /></div>
+<?php } else { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">Qu: </div><div style="float:left;"><input type="text" value="<?php echo $qu ?>" id="qu" size="2" name="qu" readonly /></div>
+<?php } ?>
+
+<div style="float:left;margin-left:1em;margin-right:0.3em;">g: </div><div style="float:left;"><input type="text" value="<?php echo $g?>"  id="g" size="3" name="g" readonly />
+</div></div>
+<?php
+} else { //fl nicht 1 > also Basics eingeben
+
+//Wenn zu alt > redirect zu e.main
+if (date("j")>10) {
+$lt = $lt2;
+}
+if ($at < $lt) {
+	if($at > $lt3) {
+	$o=1;
+echo "<script language=javascript>location.assign('instrument.html?o=1&inst=".$instcode."');</script>";	
+}}
+
+?>
+
+<div style="float:left;width:80px;line-height:30px;vertical-align:bottom">Basics</div>
+<div style="width:600px;clear:right;line-height:30px;vertical-align:bottom">
+
+<div style="float:left;">Date: </div><div style="float:left;margin-left:0.3em;"><span class="hint--top" data-hint="dd.mm.yyyy"><input type="text" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy" data-validation-error-msg="invalid date" id="date" name="datedef" value="<?php echo $datum?>"/></span></div>
+
+<?php if ($beo[11]==5) { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">UT: </div><div style="float:left;"><input type="text"  value="0800" id="ut" size="4" name="UT" readonly /></div>
+<?php } else { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">UT: </div><div style="float:left;"><span class="hint--top" data-hint="hhmm"><input type="number" style="width:4em;margin-right:1em;margin-left:0;"  data-validation="custom" data-validation-error-msg="invalid UT" data-validation-regexp="^([0-1][0-9][0-5][0-9]|2[0-3][0-5][0-9])$" autofocus value="<?php echo $ut?>" id="ut" size="5" name="UT" /></span></div>
+<?php } ?>
+<?php if ($beo[11]==5) { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">Q: </div><div style="float:left;"><input type="text" value="1" id="qu" size="2" name="qu" readonly /></a>
+</div>
+<?php } else { ?>
+<div style="float:left;margin-left:1em;margin-right:0.3em;">Q: </div><div style="float:left;"><span class="hint--top" data-hint="1-5"><input type="number" style="width:2em;margin-right:1em;margin-left:0;"  data-validation="custom" data-validation-error-msg="invalid Q" data-validation-regexp="^([1-5])$" value="<?php echo $qu?>" id="qu" size="2" name="qu" /></span></div>
+<?php } ?>
+
+
+<div style="float:left;margin-left:1em;margin-right:0.3em;">g: </div><div style="float:left;"><span class="hint--top" data-hint="0-30"><input style="width:2.8em;" type="number" data-validation="custom" value="<?php echo $g?>" data-validation-error-msg="invalid g" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="g" maxlength="2" name="g"/></span></div></div>
+<?php } ?>
+</div>
+
+<?php	
+if($fl==1) {
+if($g>0) {
+
+//  **************************
+//  GROUP DATA ENTRY
+//  **************************
+
+?>
+<div class="tr">Group data</div>
+<div class="tr"><div class="th" style="width:2em;">Nr</div><div class="th">f</div><div class="th">Zpd</div><div class="th">p</div><div class="th">s</div><div class="th">
+<?php echo ($beo[11]==5||$beo[11]==6) ? 'Pos</div><div class="th">Sector' : 'Sector'; ?>
+</div>
+<?php
+if($beo[11]==4){
+?>
+<div class="th">A</div>
+<?php
+}
+?>
+</div>
+<?php
+}
+$i=0;
+while($i<$g){
+//Dateinzeilen einbauen
+$ii = $i+1;
+?>
+<div class="tr">
+<div class="tb" style="width:2em;"><?php echo $ii?></div>
+<div class="tb"><span class="hint--top" data-hint="1-500"><input type="number" style="width:3em;" data-validation="custom" data-validation-regexp="^([1-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)$" data-validation-error-msg="invalid f" name="f[]" class="f" id="f<?php echo $i?>" size="3"></span></div>
+
+<div class="tb"><span class="hint--top" data-hint="Zpd-Values"><input type="text" data-validation="custom" data-validation-regexp="^(Axi|Axx|Bxi|Bxo|Cri|Csi|Cai|Chi|Cki|Cro|Cso|Cao|Dri|Dro|Dsi|Dsc|Dso|Dai|Dac|Dao|Dhi|Dhc|Dki|Dkc|Eri|Esi|Esc|Eai|Eac|Ehi|Ehc|Eki|Ekc|Fri|Fsi|Fsc|Fac|Fai|Fhi|Fhc|Fki|Fkc|Cho|Cko|Dho|Dko|Ero|Eso|Eao|Eho|Eko|Fro|Fso|Fao|Fho|Fko|Hhx|Hhi|Hhc|Hkx|Hki|Hkc|Hrx|Hri|Hrc|Hsx|Hsi|Hsc|Hax|Hai|Hac)$" data-validation-error-msg="invalid Zpd" autocorrect="off" autocapitalize="off" spellcheck="false" name="zpd[]" size="5" style="width:3em;" class="zpd" id="zpd<?php echo $i?>"></span></div>
+
+<div class="tb"><span class="hint--top" data-hint="0-20"><input type="number" style="width:2.2em;margin-right:1em;margin-left:0;" data-validation="custom" data-validation-regexp="^([0-9]|1[0-9]|20)$" name="pp[]" data-validation-error-msg="invalid p" size="5" class="p" id="p<?php echo $i?>" ></span></div>
+
+<div class="tb"><span class="hint--top" data-hint="0-500"><input type="number" style="width:3em;" data-validation="custom" data-validation-regexp="^([0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)$" data-validation-error-msg="invalid s" name="ss[]" data-validation-error-msg="invalid s" size="5" class="s" id="s<?php echo $i?>"></span></div>
+	
+<?php echo ($beo[11]==5||$beo[11]==6) ? '<div class="tb"><span class="hint--top" data-hint="NS##WE## i.e. N15E24"><input type="text" style="width:3em;" data-validation="custom" data-validation-regexp="^([NS][0-9][0-9][WE][0-9][0-9])$" name="pos[]" data-validation-error-msg="invalid position" id="pos'.$i.'" size="5"></div><div class="tb"><span class="hint--top" data-hint="1-4"><input type="number" style="width:2em;" data-validation="custom" data-validation-regexp="^([1-4])$" name="sect[]" data-validation-error-msg="invalid sect" id="se'.$i.'" size="5">' : 
+'<div class="tb"><span class="hint--top" data-hint="1-4"><input type="number" style="width:2em;" data-validation="custom" data-validation-regexp="^([1-4])$" name="sect[]" data-validation-error-msg="invalid sect" id="se'.$i.'" size="5">';
+?>
+</span></div>
+<?php
+if($beo[11]==4){
+echo '<div class="tb"><span class="hint--top" data-hint="0-5"><input type="number" style="width:2em;" data-validation="custom" data-validation-regexp="^([0-5])$" data-validation-error-msg="invalid A" name="a[]" size="5" value="0"></span></div>';
+}
+?>
+
+<?php
+$i=$i+1;
+echo "</div>";
+}
+
+}
+?>
+
+<input type="hidden" name="ch" value="1" />
+<input type="hidden" name="inst" value="<?php echo $instcode?>" />
+<?php	
+if($fl==1) {
+?>
+
+<div style="padding-top:1em;clear:both;">Summation</div>
+<div style="width:700px;clear:both;margin-bottom:0.5em;">
+<div class="boo" style="width:4em;">Datum</div>
+<div class="bo" style="width:3em;">UT</div>
+<div class="bo">Q</div>
+<div style="float:left;width:5px;">&nbsp;</div>
+<div class="boo">g</div>
+<div class="bo">f</div>
+<div class="bo">Re</div>
+<div class="bo">A</div>
+<div class="bo">B</div>
+<div class="bo">C</div>
+<div class="bo">D</div>
+<div class="bo">E</div>
+<div class="bo">F</div>
+<div class="bo">G</div>
+<div class="bo">H</div>
+<div class="bo">J</div>
+<div id="b1" class="buu" style="width:4em;clear:left;"><?php echo $datedef?></div>
+<div id="b2" class="bu" style="width:3em;"><?php echo $ut?></div>
+<div id="b3" class="bu"><?php echo $qu?></div>
+<div style="float:left;width:5px;">&nbsp;</div>
+<div id="b4" class="buu"><?php echo $g?></div>
+<div id="b5" class="bu">0</div>
+<div id="bRe" class="bu">0</div>
+<div id="bA" class="bu">0</div>
+<div id="bB" class="bu">0</div>
+<div id="bC" class="bu">0</div>
+<div id="bD" class="bu">0</div>
+<div id="bE" class="bu">0</div>
+<div id="bF" class="bu">0</div>
+<div id="bG" class="bu">0</div>
+<div id="bH" class="bu">0</div>
+<div id="bJ" class="bu">0</div>
+</div>
+
+<div style="width:700px;clear:both;margin:0 0 1.5em 151px;padding-top:0.5em;">
+<div class="boo">p</div>
+<div class="bo">s</div>
+<div class="bo">SN</div>
+<div class="bo">gr</div>
+<div class="bo">grfp</div>
+<div class="bo">grf</div>
+<div class="bo">efp</div>
+<div class="bo">ef</div>
+<div class="bo">IS</div>
+
+<div id="bp" class="buu" style="clear:left;">0</div>
+<div id="bs" class="bu">0</div>
+<div id="bSN" class="bu">0</div>
+<div id="bgr" class="bu">0</div>
+<div id="bgrfp" class="bu">0</div>
+<div id="bgrf" class="bu">0</div>
+<div id="befp" class="bu">0</div>
+<div id="bef" class="bu">0</div>
+<div id="bIS" class="bu">0</div>
+</div>
+
+<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;padding-top:1.5em;">&nbsp;</div>
+<input type="hidden" name="code" value="<?php echo $beo[0]?>"/>
+<input type="hidden" name="etyp" value="g"/>
+<input type="hidden" name="pref" value="<?php echo $beo[11]?>"/>
+<button type="submit" name="daysave" 
+<?php
+if($g==0) {
+	echo ' autofocus="autofocus" ';
+	}
+?>
+		value="save" style="margin-top:10px;">save</button>
+<button type = "reset" name="erase" value="reset">reset</button>
+<?php //</div> ?>
+</form>
+<div style="margin-bottom:1em">&nbsp;</div>
+
+<?php	
+} else { // fl nicht 1 also basics > hier Teil einfügen Bild laden falls notwendig 
+
+if($beo[11]==6): // Nur wenn Instrument mit inputpref 6 (draw laden)?>
+<div>If you want to load a draw, please fill in the url of the distant folder, where the draw can be found. The system will load an image with given Instrument-ID, date and UT (with 00, 15, 30 or 45 min). (e.g. 974_20170302_1015.jpg). Only jpg-files are allowed.</div>
+<div>URL: <div><input type="text" id="rawdraw" name="rawdraw" size="80"></div></div>
+<input type="hidden" name="prefix" id="prefix" value="<?php echo $beo[0]?>"/>
+
+	<!--<button onClick="callDraw()">load draw</button></div>-->
+
+<div>&nbsp;</div>
+	
+<?php endif;?>
+<?php if($beo[11]==6):?>
+<button id="upl" style="display:none">Upload 2</button>
+<?php endif;?>
+<button id="gosave" <?php if($beo[11]==6){ echo 'style="display:none"';} ?> type='submit' name='insave' value='go'>go</button>
+</form>
+<?php //<div style="width:720px;clear:left;height:0;padding-top:1.5em;padding-bottom:2em;">&nbsp;</div> ?>
+<?php if($beo[11]==6):?>
+<button id="upload">Upload 1</button>
+<?php endif;?>
+<div style="margin-bottom:1em">&nbsp;</div>
+<?php	
+}}
+
+
+if(($beo[11]==5 && $fl==1)||$beo[11]==6 && $fl==1){   // Wenn SDO > image zeigen zur Loaklisation
+?>
+<?php if($beo[11]==5 && $fl==1):?>
+<div style="margin-top:1em;margin-bottom:0.5em;">Use full size image to search for solar spots. Click in the table above in the position field of a given spot group. Click then on the corresponding spot group in the image below to retrieve position and sector of this spot group. Position and sector will be entered automatically in the corresponding group row.</div>
+<?php endif;?>
+<?php if($beo[11]==6 && $fl==1):?>
+<div style="margin-top:1em;margin-bottom:0.5em;">You have to load first your image into the canvas (click on the button "Load image" to enter a valid location of this image. Click in the table above in the position field of a given spot group. Click then on the corresponding spot group in the image below to retrieve position and sector of this spot group. Position and sector will be entered automatically in the corresponding group row.</div>
+<?php endif;?>
+<div id="posect" style="font-size:24px;"><div style="float:left;width:73px;">Position: </div><div id = "sco" style="float:left;width:90px;">&nbsp;</div><div style="float:left; width:60px;">Sector: </div><div id="sco1"></div></div><div style="clear:both"></div>
+<?php
+
+$y = $dp[2];
+$mo = $dp[1];
+$d = $dp[0];
+if($beo[11]==5){
+	$h = '08';
+	$mi = '00';
+} else {
+	$h = substr($ut,0,2);
+	$mi = substr($ut,2,2);
+}
+$minu = floor($mi/15)*15;
+$minut = ($minu==0) ? "00" : $minu;
+?>
+
+<?php
+
+// Daten Lokalisation Sonnenfleckengruppen holen
+// Daten stammen aus dobs
+$sql="SELECT * from tl_dobs WHERE d_time='".$y."-".$mo."-".$d." 00:00:00' ORDER by d_num;";
+//echo $sql;
+$ele=array();
+$dosql=mysql_query($sql) or die("Fehler:".mysql_error());
+$i=0;
+
+//Da muüssen aber andere Zeitdaten rein für draw!
+
+// Neues Skript adaptiert aus Kanzelhöhe jscript
+$radian = 180/3.1415926;
+if ($mo <= 2) {
+	$y = $y - 1;
+	$mo = $mo + 12;
+}
+
+$a = floor($y/100);
+$b = 2 - $a + floor($a/4);
+
+$d =$d+ $ti/24;
+$jdg = floor(365.25*($y+4716))+floor(30.6001*($mo+1))+$d+$b-1524.5;
+$jd = $jdg;
+$jd0 = floor($jdg+0.5)-0.5;
+// Julian day 0h UT
+$theta = ($jd-2398220)*360/25.38;
+$inc = 7.25/$radian;
+$k = (73.6667+1.3958333*($jd-2396758)/36525)/$radian;
+$t = ($jd-2451545)/36525;
+$t2=$t*$t;
+$t3=$t*$t2;
+$gmst=280.46061837+360.98564736629*($jd-2451545.0)+0.000387933*$t2-$t3/38710000;
+$gmst0=100.46061837+36000.770053608*$t+0.000387933*$t2-$t3/38710000;
+$lmst=$gmst-$L_KSO;
+$L0 = 280.46645+36000.76983*$t+0.0003032*$t2;
+$M = 357.52910+35999.05030*$t-0.0001559*$t2-0.00000048*$t3;
+$Mr = $M/$radian;
+$C = (1.914600-0.004817*$t-0.000014*$t2)*sin($Mr)+(0.019993-0.000101*$t)*sin(2*$Mr)+0.000290*sin(3*$Mr);
+$sunL = $L0+$C;
+$v = $M+$C;
+$e=0.016708617-0.000042037*$t-0.0000001236*$t2;
+$dist=1.000001018*(1-$e*$e)/(1+$e*cos($v/$radian)); //distance in AE
+
+$omega = 125.04-1934.136*$t;
+$lngtd = $sunL-0.00569-0.00478*sin($omega/$radian);
+$lngtdr = $lngtd/$radian;
+$diffk = ($lngtdr-$k);			// both in radians
+$oblr = (23.4392911-0.0130042*$t-0.0000164*$t2+0.0000504*$t3)/$radian;
+$tx = - cos($lngtdr)*tan($oblr);
+$ty = - cos($diffk)*tan($inc);
+$x = atan($tx);
+$y = atan($ty);
+$Pr = ($x + $y);			//Postion angle
+$P = $Pr*$radian;
+$B0r =asin(sin($diffk)*sin($inc));		//central latitude
+
+$B0 = $B0r*$radian*-1;
+$etay = -sin($diffk)*cos($inc);
+$etax = -cos($diffk);
+$eta = (atan2($etay,$etax))*$radian;
+$L0 = $eta - $theta;				// Longitude of center of disk
+$L0 = truncate($L0);
+$L0r = $L0/$radian;
+$CarrNo = floor(($jd - 2398140.22710)/27.2752316);
+
+// Jetzt Bild laden
+
+$xs = 282 * cos(deg2rad(0)) * sin(deg2rad(-90));
+if($beo[11]==5){
+$img1="files/institute/sdoimg/".$dp[2].$dp[1].$dp[0]."_512.jpg"; //SDO-Bild
+} else {
+	$dp = explode(".",$datedef);
+	$img1="files/institute/draws/".$beo[0]."_".$dp[2].$dp[1].$dp[0]."_".$ut."_512.jpg";
+	echo $img1."<br/>";
+}?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+     version="1.1" baseProfile="full"
+     width="600" height="660">
+
+<image id="sdoimg" x="0" y="20" width="600" height="600" xlink:href="<?php echo $img1 ?>" />
+<rect id="sdoi" width="550" height="550" x="25" y="45" style="fill:rgba(252,249,249,0.01);stroke-width:1;stroke:rgba(255,240,57,1.00)" />
+
+<?php //routine Extraktion BL und umrechnen auf hz-coord
+//zeichne ein Gradnetz
+
+$dist=$dist*1.01;
+
+for($bk=-90; $bk <=90; $bk=$bk+10){
+for($s=-90; $s <=90; $s=$s+10) {
+$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+
+if($s>-90  ){
+
+?>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<?php
+
+}
+$cx=$xs+300;
+$cy=$ys+320;
+}
+}
+
+for($s=-90; $s<=90; $s=$s+10) {
+for($bk=-90; $bk <=90; $bk=$bk+10){
+$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+
+if($s>=-90  ){
+	
+	?>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<?php
+
+}
+$cx=$xs+300;
+$cy=$ys+320;
+}
+}
+
+
+$i=0;
+while($nu[$i]<>NULL){
+
+if(substr($la[$i],0,1)=='N'){
+$br = intval(substr($la[$i],1,2))/$radian;
+$bb[$i]=$br*$radian;
+} else {
+$br = intval(substr($la[$i],1,2))*-1/$radian;
+$bb[$i]=$br*$radian;
+}
+if(substr($la[$i],3,1)=='W'){
+$lang = intval(substr($la[$i],4,2)+1)/$radian;
+$lan[$i]=$lang*$radian;
+} else {
+$lang = ((intval(substr($la[$i],4,2))*-1)+1)/$radian;
+$lan[$i]=$lang*$radian;
+}
+//$l=$la-$L0r;
+$l=$lang;
+$x0 = 300;
+$y0 = 320;
+$x1 = 282 * cos($br) * sin($l);
+
+$y1 = 282 * ((sin($br) * cos($B0r)) - (cos($br) * sin($B0r) * cos($l)));
+$x=$x0+$x1;
+$y=$y0-$y1;
+$y = $y>300 ? $y+30 : $y;
+
+//Ausdehnung:
+$lange=$aus[$i]/2; //halbe Ausdehnung
+$l1 = (intval(substr($la[$i],4,2))-$lange)/$radian; //diff zu zentrum
+$l2 = (intval(substr($la[$i],4,2))+$lange)/$radian;
+$lx1 = 282 * cos($br) * sin($l1); //umrechnen in pixel
+$lx2 = 282 * cos($br) * sin($l2);
+$ra=$lx2-$lx1; //diff in pixel
+
+if(substr($la[$i],5,1)!="*"){ //* Bezeichnungen nicht darstellen
+?>
+<text x="<?php echo $x?>" y="<?php echo $y-$ra?>" style="font-size:14px;font-family:Arial,Helvetica;" fill="blue" text-anchor="middle"><?php echo $nu[$i]?></text>
+
+<?php
+//echo "la=".$la." br=".$br."<br/>";
+}
+$i=$i+1;
+}
+?>
+
+<text x="592" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">W</text>
+<text x="10" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">E</text>
+<text x="300" y="30" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">N</text>
+<text x="300" y="615" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">S</text>
+
+</svg>
+
+
+<?php
+}
+
+
+function truncate($angle) {
+	$n = floor($angle/360);
+	$tangle = $angle-$n*360;
+	return $tangle;
+}
+?>
+<?php if($beo[11]==6):
+//echo '<div id="tester">Tester</div>'?>
+<button id="crop" style="display:none">Start cropping</button>
+<input id="coord0" style="display:none;float:left;" value="" size="5">
+<input id="coord1" style="display:none;float:left;" value="" size="5">
+<input id="coord2" style="display:none;float:left;" value="" size="5">
+<input id="coord3" style="display:none;float:left;" value="" size="5">
+<div style="clear:both;"></div>
+<svg id="testsvg"
+     width="512" height="0">
+<image id="drawimg" x="0" y="0" xlink:href ="" width="10" height="10"/>
+<rect id="rec" width="0" height="0" x="0" y="0" style="fill:rgba(232,249,249,0.1);stroke-width:1;stroke:rgba(223,0,0,1.00)" />
+</svg>
+
+<?php endif;?>
+<script>
+	$("#upload").on("click", function() {
+		var inst = <?php echo $beo[0]?>;
+		var pdate = $('input[id=date]').val();
+		var ut = $('input[id=ut]').val();
+		var url = $('input[id=rawdraw]').val();
+		alert(inst+" "+pdate+" "+ut+" "+url);
+		//alert("Loading file from\n"+url+"\n"+"for "+pdate+", "+ut+" UT");
+		$.ajax({
+  			type: 'post',
+  			url: 'files/institute/draws/imgtest.php',
+  			data: ({
+        		inst: inst,
+				pdate: pdate,
+				ut: ut,
+				url: url
+    		}),
+  			success: function (response) {
+				var spl = response.split(",");
+				if(parseInt(spl[0])==1){
+					alert(spl[1]+"\n"+"File not found – please check URL and correct file name!")
+					return;
+				} else {
+				alert(spl[0]+" "+spl[1]);
+				document.getElementById('testsvg').setAttribute("height", spl[1]);	document.getElementById('drawimg').setAttribute("xlink:href","files/institute/draws/"+spl[2]);
+				document.getElementById('drawimg').setAttribute("width", "512");
+				document.getElementById('drawimg').setAttribute("height", spl[1]);
+				document.getElementById('rec').setAttribute("width", "512");
+				document.getElementById('rec').setAttribute("height", spl[1]);
+				$('#upload').css('display','none');
+				$('#crop').css('display','block');
+				}
+				//$( '#testsvg' ).height(response);
+				//$( '#drawimg' ).height(response);
+  			}
+  		});
+		
+});
+</script>
+<script>
+	$("#upl").on("click", function() {
+		var inst = <?php echo $beo[0]?>;
+		var pdate = $('input[id=date]').val();
+		var ut = $('input[id=ut]').val();
+		var url = $('input[id=rawdraw]').val();
+		//alert("Loading file from\n"+url+"\n"+"for "+pdate+", "+ut+" UT");
+		$.ajax({
+  			type: 'post',
+  			url: 'files/institute/draws/mkdraw.php',
+			async:false,
+  			data: ({
+        		inst: inst,
+				pdate: pdate,
+				ut: ut,
+				url: url,
+				top: $('#coord0').val(),
+				bottom: $('#coord1').val(),
+				left: $('#coord2').val(),
+				right: $('#coord3').val(),
+    		}),
+  			success: function (response) {
+				alert("The cropped image has been uploaded");
+				document.getElementById('sdoimg').setAttribute("xlink:href","files/institute/draws/"+response);
+  			}
+  		});
+		
+});
+</script>
+
+<script>	
+$( "#crop" ).click(function() {
+	//$('#dn').css('display','block');
+	//$('#crop').css('display','none');
+	var posit = $("#rec").offset();
+	var inc=0;
+	//$( "#dn" ).click(function() {
+	alert("Please mark the sun disk: Top > Bottom > Left > Right");
+		$('#coord0').css('display','block');
+		$('#coord1').css('display','block');
+		$('#coord2').css('display','block');
+		$('#coord3').css('display','block');
+	$( "#rec" ).mousedown (function( event ) {
+		//document.getElementById()
+		var scrollTop = window.pageYOffset;
+  		var scrollLeft = window.pageXOffset;
+		var clientCoords = "( " + event.clientX + ", " + event.clientY + " )";
+		var leftAct = (event.clientX - posit.left + scrollLeft).toFixed(0);
+		var topAct = (event.clientY - posit.top + scrollTop).toFixed(0);
+		
+		$('#coord'+inc).val(leftAct + "," +topAct);
+		inc=inc+1;
+		if(inc>3){
+			$('#upl').css("display", "block");
+			$('#crop').css("display", "none");
+		}
+		});
+	
+//});
+	});
+	
+	
+</script>
+
+<script>
+var pos = $("#sdoi").offset();
+	
+$( "[id^=pos]" ).click(function() {
+	var fid = this.id;
+	var id = fid.substr(fid.length - 1);
+  //alert( "Handler for .focus() called." + fid );
+
+
+$( "#sdoi" ).mousedown (function( event ) {
+	<?php
+	echo "var b0='$B0';";
+	?>
+		
+	var scrollTop = window.pageYOffset;
+  	var scrollLeft = window.pageXOffset;
+	var clientCoords = "( " + event.clientX + ", " + event.clientY + " )";
+	var leftAct = event.clientX - pos.left + scrollLeft -275;
+	var topAct = (event.clientY - pos.top + scrollTop - 275)*-1;
+	// Hilfsgrössen
+	if (Math.atan2(topAct, leftAct)<0) {
+		var phi = Math.atan2(topAct, leftAct) + 2*Math.PI;
+	} else {
+		var phi = Math.atan2(topAct, leftAct);
+	}
+
+	var x2plusy2 = (leftAct * leftAct) + (topAct * topAct);
+	var r = Math.sqrt(x2plusy2);
+	var sinRho = r / 275;
+	var cosRho = Math.cos(Math.asin(sinRho));
+	var sinB = (-1)*cosRho * Math.sin(deg2rad(b0)) + sinRho * Math.cos(deg2rad(b0)) * Math.sin(phi);
+	if(Math.asin(sinB)<0){
+		if(Math.round(Math.abs(rad2deg(Math.asin(sinB))))<10){
+			var lat = "S0" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		} else {
+		var lat = "S" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		}
+	} else {
+		if(Math.round(Math.abs(rad2deg(Math.asin(sinB))))<10){
+		var lat = "N0" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		} else {
+			var lat = "N" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		}
+	}
+	
+	var sinL = Math.cos(phi) * sinRho / Math.cos(Math.asin(sinB));
+		if(Math.asin(sinL)<0){
+			if(Math.round(Math.abs(rad2deg(Math.asin(sinL))))<10){
+				var long = "E0" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			} else {
+				var long = "E" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			}
+	
+		} else {
+			if(Math.round(Math.abs(rad2deg(Math.asin(sinL))))<10){
+				var long = "W0" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			} else {
+				var long = "W" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			}	
+		}
+	var se = sinRho * Math.PI;
+	
+	var se1 = Math.PI / 2;
+	var se2 = 3 * Math.PI / 4;
+	var se3 = 7 * Math.PI / 8;
+	
+switch (true) {
+	case (se < se1):
+		sec = 4;
+		break;	
+	case (se < se2): 
+		sec = 3;
+		break;
+	case (se < se3): 
+		sec = 2;
+		break;
+	case (se >= se3): 
+		sec = 1;
+		break;
+}
+	//alert( "do we have an fid? " + fid ) 
+	//if <10 > add 0
+	
+	$( "#sco" ).text( lat + long );
+	$( "#"+fid ).val( lat + long );
+	$( "#se"+id ).val( sec );
+	$( "#sco1" ).text( sec );
+	fid='';
+	id='';
+});
+	});
+function rad2deg(angle) {
+  return angle * 57.29577951308232;
+}
+function deg2rad(angle) {
+  return angle * (Math.PI / 180); 
+}
+</script>
