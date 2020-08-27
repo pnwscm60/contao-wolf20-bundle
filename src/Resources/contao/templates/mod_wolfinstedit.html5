@@ -1,0 +1,328 @@
+<?php ?>
+<div class="<?= $this->class ?>  tableless login block"<?= $this->cssID ?><?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
+
+<?php
+//showresults = Dateien zum editieren anzeigen, sonst Eingabemaske
+
+if($this->modifyinst==1){
+echo "<h1>Activate/Deactivate instrument</h1>";	
+echo "<p>Observer / Instrument:<br/>";
+echo $this->observer;
+echo $this->instrument;
+?><div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+	<?php if($this->saveinstmod==1):?>
+		<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+		<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+		<div class="okmessage">Activation/deactivation for this instrument has been saved</div></div>
+	<?php endif;?>
+	<?php if($this->newmessage!=''):?>
+		<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+		<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+		<div class="okmessage"><?php echo $this->newmessage?></div></div>
+	<?php endif;?>
+	<p style="clear:left;">You can activate or deactivate this instrument now. Please choose the appropriate activation key:</p>
+	<p>0 = deactivate this instrument<br/>
+		1 = activate this instrument for daily observation <b>without</b> Waldmeier classification<br/>
+		2 = activate this instrument for daily observation <b>with</b> Waldmeier classification<br/>
+		3 = activate this instrument for group observation <b>without</b> naked eye observation<br/>
+		4 = activate this instrument for group observation <b>with</b> naked eye observation<br/>
+		5 = activate this instrument for group observation <b>from screen</b> (SDO)<br/>
+		6 = activate this instrument for group observation <b>from drawing</b> (imported)</p>
+	<p>This instrument is actually set to activation key <b><?php echo $this->inputpref?></b> 
+	<form name="choose" action="instedit.html" method="post" class="selectform">
+	<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type="hidden" name="saveinstmod" value="1">
+	<select name="iakt" id="ispez" style="float:left;">
+	<option value="">Choose an option</option>
+	<option value="0">Deactivate this instrument</option>
+	<option value="1">Activate for daily observation (without Waldmeier classification)</option>
+	<option value="2">Activate for daily observation (with Waldmeier classification)</option>
+	<option value="3">Activate for group observation (without naked eye observation)</option>
+	<option value="4">Activate for group observation (with naked eye observation)</option>
+	<option value="5">Activate for group observation (from screen: SDO)</option>
+	<option value="6">Activate for group observation (from drawing: imported)</option>
+	</select>
+	<input type="hidden" name="icode" id="icode" value="<?php echo $this->instcode?>">
+		<div style="float:left;clear:both;margin-left:0;margin-top:30px;"><button type="submit" name="save" value="save">save</button><button type="button" value="cancel" onclick="window.location.href='instedit.html?modifyinst=0&saveinstmod=0'">cancel</button></div>
+	</form>
+<?php
+} elseif($this->saveinstmod==1){  /****  AKTIVIERUNGSÄNDERUNG WURDE GESPEICHERT  ****/
+	echo "<h1>Modify instrument</h1>";	
+	echo "<p>Observer / Instrument:<br/>";
+	echo $this->observer;
+	echo $this->instrument;?>
+	<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
+	<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
+	<div class="okmessage">Activation/deactivation for this instrument has been saved</div></div>
+
+<?php } elseif($this->newinst==1){?>
+
+<div id="inew" style="
+<?php echo $this->newinst==1 ? "display:block;clear:both;":"display:none;";
+	?>">
+	<h1>New instrument</h1>	
+	<p style='clear:left;'>Observer:<br/>
+	<?php echo $this->observer;
+?>
+	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+<?php // Abfrage userdaten
+$sql='SELECT id, lastname, firstname from tl_member WHERE id = '.$this->userid.';';
+$dosql2=mysql_query($sql) or die(mysql_error());
+
+?>
+<form name="newinstr" method="post" action="instedit.html" class="selectform">
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type="hidden" name="savenewinst" value="1">
+<table width="66%">
+<tr><td class="tn">User</td>
+<td><SELECT name="id">
+<?php
+while($user=mysql_fetch_row($dosql2)){
+	echo '<option value="'.$user[0].'">'.$user[1].' '.$user[2].'</option>';
+}
+?></SELECT></td><td>&nbsp;</td></tr>
+<tr><td class="tn">Type</td><td><SELECT name="type"><option value="Refl">Refl</option><option value="Refr" selected>Refr</option><option value="Bino" >Bino</option><option value="SDO">SDO</option></SELECT></td></tr>
+<tr><td class="tn">Aperture</td><td><input type="text" name="aperture" value=""> mm</td><td style="color:#888;">SDO: 140 mm</td></tr>
+<tr><td class="tn">Focal length</td><td><input type="text" name="focal" value=""> mm</td><td style="color:#888;">SDO: 4950 mm</td></tr>
+<tr><td class="tn">Filter</td><td><SELECT name="filter">
+<option value="welder glass">welder Glass</option>
+<option value="eyepiece filter" >eyepiece filter</option>
+<option value="mylar filter" >mylar filter</option>
+<option value="glass filter" >glass filter</option>
+<option value="projection" >projection</option>
+<option value="helioscope" selected >helioscope</option>
+<option value="film filter" >film filter</option>
+<option value="HMIIF" >HMIIF</option>
+</SELECT></td><td style="color:#888;">SDO: HMIIF</td></tr>
+<tr><td class="tn">Method</td><td><SELECT name="method">
+<option value="eyepiece" selected>eyepiece</option>
+<option value="projection" >projection</option>
+<option value="screen" >screen</option>
+</SELECT></td><td style="color:#888;">SDO: screen</td></tr>
+<tr><td class="tn">Magnification</td><td><input type="text" name="mag" value=""></td><td style="color:#888;">SDO: 2048</td></tr>
+<tr><td class="tn">Projection</td><td><input type="text" name="project" value=""> mm</td><td style="color:#888;">SDO: 0 mm</td></tr>
+<tr><td class="tn">Input pref.</td><td align="left"><div align="left">
+  <SELECT name="input">
+    <option value="0" selected>deactivated</option>
+  </SELECT>
+</div></td></tr>
+
+	<tr><td></td><td><button type="submit" value="save">save</button></td></tr>
+</table>
+</form>
+
+</div>
+<div class="clear" style="height:2em;">&nbsp;</div>
+
+<?php } elseif($this->viewinst==1){  /****  ALLE INST ANZEIGEN  ****/
+	echo "<h1>View your instruments</h1>";	
+	echo "<p style='clear:left;'>Observer:<br/>";
+	echo $this->observer;
+?>
+	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+	
+<div id="ued" style="">
+
+<?php 
+$sql1='SELECT * from tl_instrument, tl_member WHERE i_id = '.$this->userid.' AND i_id=tl_member.id ORDER BY tl_instrument.id';
+$dosql1=mysql_query($sql1) or die(mysql_error());
+?> <table width="80%" style="padding-bottom:30px;" class="inst">
+<tr style="font-family:'museo-sans-condensed';font-weight:100;background-color:#eee;text-align:left;">
+<th>id</th><th>user</th><th>type</th><th>apert.</th><th>foc l.</th><th>filter</th><th>method</th><th>magn.</th><th>proj.</th><th>input</th></tr>
+<?php
+while($is = mysql_fetch_row($dosql1)){
+	//Schleife: wenn timestamp -60*60*24 > nur anzeigen, sonst editieren
+$ts1 = split(' ',$is[13]);
+$ts3 = split('-',$ts1[0]);
+$ts2 = split(':',$ts1[1]);
+$ts = mktime($ts3[0],$ts3[1],$ts3[2],$ts2[1],$ts2[2],$ts2[0]);
+$ts = $is[14];
+if(time()>$ts+60*60*24){ ?>
+	<form name="user" action="index.php?do=m.svinstr_mb&ied=1" method="post">
+    <tr>
+    <td style="width:35px;"><?php echo $is[0]?></td>
+    <td style="width:35px;"><input style="width:25px;margin-right:2px;" type="text" name="user" value="<?php echo $is[3]?>" readonly></td>
+    <td style="width:55px;"><input style="width:55px;margin-right:2px;" type="text" name="type" value="<?php echo $is[4]?>" readonly></td>
+    <td style="width:35px;"><input style="width:30px;margin-right:2px;" type="text" name="aperture" value="<?php echo $is[5]?>" readonly></td>
+    <td style="width:45px;"><input style="width:40px;margin-right:2px;" type="text" name="focal" value="<?php echo $is[6]?>" readonly></td>
+    <td style="width:120px;"><input style="width:115px;margin-right:2px;" type="text" name="filter" value="<?php echo $is[7]?>" readonly></td>
+    <td style="width:100px;"><input style="width:95px;margin-right:2px;" type="text" name="method" value="<?php echo $is[8]?>" readonly></td>
+    <td style="width:45px;"><input style="width:30px;margin-right:2px;" type="text" name="mag" value="<?php echo $is[9]?>" readonly></td>
+    <td style="width:45px;"><input style="width:30px;margin-right:2px;" type="text" name="type" value="<?php echo $is[10]?>" readonly></td>
+    <td style="width:80px;"><input style="width:75px;margin-right:2px;" type="text" name="input"<?php 
+	echo 'value="';
+	 switch($is[11]){
+		case 0:
+		echo 'deactivated';
+		break;
+		case 1:
+		echo "daily -W";
+		break;
+		case 2:
+		echo "daily +W";
+		break;
+		case 3:
+		echo "group -ne";
+		break;
+		case 4:
+		echo "group +ne";
+		break;
+		case 5:
+		echo "group sdo";
+		break;
+		case 6:
+		echo "draw";
+		break;
+	}
+		
+    
+    echo '" readonly="readonly"></td>';
+	?>
+    </tr>
+    </form>
+<?php
+} else {
+echo '<form name="user" action="" method="post">' ; 
+echo '<tr>';
+echo '<td style="width:35px;">'.$is[0].'</td>';
+echo '<td style="width:35px;"><input style="width:25px;margin-right:2px;" type="text" name="user" value="'.$is[3].'" readonly="readonly"></td>';
+echo '<td style="width:55px;"><SELECT name="type" style="width:55px;margin-right:2px;">';
+echo '<option value="Refl" ';
+echo ($is[4]==="Refl" ? " selected ":"");
+echo '>Refl</option>
+<option value="Refr" ';
+echo ($is[4]==="Refr"? " selected ":"");
+echo '>Refr</option>
+<option value="Bino" ';
+echo ($is[4]==="Bino"? " selected ":"");
+echo '>Bino</option>
+<option value="SDO" ';
+echo ($is[4]==="SDO"? " selected ":"");
+echo '>SDO</option>
+</SELECT></td>';
+echo '<td style="width:35px;"><input style="width:30px;margin-right:2px;" type="text" name="aperture" value="'.$is[5].'"</td>';
+echo '<td style="width:45px;"><input style="width:40px;margin-right:2px;" type="text" name="focal" value="'.$is[6].'"</td>';
+echo '<td style="width:120px;"><SELECT name="filter" style="width:115px;margin-right:2px;">';
+echo '<option value="unknown" ';
+echo ($is[7]==="unknown"? " selected ":"");
+echo '>unknown</option>';
+echo '<option value="welder glass" ';
+echo ($is[7]==="welder glass" ? " selected ":"");
+echo '>welder glass</option>
+<option value="eyepiece filter" ';
+echo ($is[7]==="eyepiece filter"? " selected ":"");
+echo '>eyepiece filter</option>
+<option value="mylar filter" ';
+echo ($is[7]==="mylar filter"? " selected ":"");
+echo '>mylar filter</option>
+<option value="glass filter" ';
+echo ($is[7]==="glass filter"? " selected ":"");
+echo '>glass filter</option>
+<option value="projection" ';
+echo ($is[7]==="projection"? " selected ":"");
+echo '>projection</option>
+<option value="helioscope" ';
+echo ($is[7]==="helioscope"? " selected ":"");
+echo '>helioscope</option>
+<option value="film filter" ';
+echo ($is[7]==="film filter"? " selected ":"");
+echo '>film filter</option>
+<option value="HMIIF" ';
+echo ($is[7]==="HMIIF"? " selected ":"");
+echo '>HMIIF</option>
+</SELECT></td>';
+echo '<td style="width:100px;"><SELECT name="method" style="width:95px;margin-right:2px;">';
+echo '<option value="eyepiece" ';
+echo ($is[8]==="eyepiece" ? " selected ":"");
+echo '>eyepiece</option>
+<option value="projection" ';
+echo ($is[8]==="projection"? " selected ":"");
+echo '>projection</option>
+<option value="screen" ';
+echo ($is[8]==="screen"? " selected ":"");
+echo '>screen</option>
+</SELECT></td>';
+echo '<td style="width:45px;"><input style="width:30px;margin-right:2px;" type="text" name="mag" value="'.$is[9].'"</td>';
+echo '<td style="width:45px;"><input style="width:30px;margin-right:2px;" type="text" name="proj" value="'.$is[10].'"</td>';
+echo '<td style="width:80px;"><input type="text" name="input" style="width:75px;margin-right:2px;
+" value="';
+	 switch($is[11]){
+		case 0:
+		echo 'deactivated';
+		break;
+		case 1:
+		echo "daily -W";
+		break;
+		case 2:
+		echo "daily +W";
+		break;
+		case 3:
+		echo "group -ne";
+		break;
+		case 4:
+		echo "group +ne";
+		break;
+		case 5:
+		echo "group sdo";
+		break;
+		case 6:
+		echo "draw";
+		break;
+	}
+		
+    
+echo '" readonly="readonly"></td>';
+echo '<td><input type="submit" value="ok">';
+echo '<a href="'.$myself.'m.delinst&id='.$is[0].'"><img src="graphics/del.png" width="18" style="margin:10px 0 0 5px;"></a>';
+echo '</td>';
+echo '<input type="hidden" name="code" value="'.$is[0].'">';
+echo '</form>';
+?>
+
+<?php
+echo '</tr>';
+}
+}
+echo '</table>';
+?>
+</div>
+	<div style="font-family:'museo-sans-condensed';margin:0;width:200px;height:36px;"><a href="instedit.html">go back</a></div>
+	
+	
+<?php } else {
+	echo "<h1>Instruments</h1>";	
+	echo "<p style='clear:left;'>Observer:<br/>";
+	echo $this->observer;
+?>
+	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+	<h2>Instrument activation</h2>
+<?php
+//SQL: alle Instrumente dieses Beobachters:
+$sql="SELECT * from tl_instrument WHERE i_id=".$this->userid;
+
+$instr=mysql_query($sql) or die(mysql_error()); ?>
+<form name='choose' class="selectform" action='instedit.html' method='post'>
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type="hidden" name="modifyinst" value="1">
+<?php if(mysql_num_rows($instr)==0):?>
+	<p>There are no instruments for your id in our database.<br/>Please request a new instrument entry by the webmaster!</p>
+	<?php else:?>
+	
+	<div style='height:50px;width:auto;' class='wolfform'>
+	<div style='float:left;text-align:right; width:160px; padding-top:4px;vertical-align:middle;margin-right:15px;'>Choose your instrument</div>
+	<div style='vertical-align:top;width:300px;text-align:left;clear:right; float:left;'>
+	<SELECT name='inst' size='1'>
+	<?php while($ins=mysql_fetch_row($instr)):?>
+		<option value='<? echo $ins[0]?>'><? echo $ins[4]?> <? echo $ins[5]?>/<? echo $ins[6]?> <? echo $ins[7]?> Mag. <? echo $ins[9]?></option>
+		<?php endwhile;?>
+	</SELECT></div></div>
+	
+	<div><div style='float:left;text-align:right; width:160px; vertical-align:top;margin-right:15px;clear:left;'>&nbsp;</div><div style='margin-top:0;'><button type='submit' name='insave' value='go'>go</button></div></div>
+	 <?php endif;?>
+	 </form>
+	 <div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:2em;">&nbsp;</div>
+	<div id="showbut1" >
+	<h2>Instrument administration</h2>
+		<div ><a href="instedit.html?viewinst=1" style="margin-right:1.5em;">View Instruments</a><a href="instedit.html?newinst=1" style="margin-right:1.5em;">New Instrument</a><a href="instedit.html?instexcel=1" style="margin-right:1.5em;">Export to MSExcel</a></div></div>
+ <?php }?>
+	</script>
