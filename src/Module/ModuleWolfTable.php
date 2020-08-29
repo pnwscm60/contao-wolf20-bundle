@@ -1,6 +1,6 @@
 <?php
- 
-class ModuleWolfTable extends Module
+namespace Pnwscm60\Wolf20Bundle\Module;
+class ModuleWolfTable extends \Contao\Module
 {
 	/**
 	 * Template
