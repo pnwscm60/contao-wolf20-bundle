@@ -1,6 +1,6 @@
 <?php
- 
-class ModuleWolfGraph extends Module
+namespace Pnwscm60\Wolf20Bundle\Module; 
+class ModuleWolfGraph extends \Contao\Module
 {
 	/**
 	 * Template
