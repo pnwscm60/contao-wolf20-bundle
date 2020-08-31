@@ -13,7 +13,7 @@ public function generate()
         if (TL_MODE == 'BE')
         {
             $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### ' . utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['wolfinstedit'][0]) . ' ###';
+            $objTemplate->wildcard = '### instedit ###';
             //$objTemplate->firma = $this->headline;
             return $objTemplate->parse();
         }
@@ -27,18 +27,41 @@ public function generate()
 	{
 		
 			
-	// Userdaten für Angaben zu Observer
-		$this->import('FrontendUser', 'User');
-		$userid = $this->User->id;
-		//Informationen zum Observer
-		$sql="SELECT * from tl_member WHERE id = ".$userid;
-		$beob=mysql_query($sql) or die(mysql_error());
-		$beo=mysql_fetch_row($beob);
-	
-		$this->Template->userid = $userid;
-		$this->Template->observer = "[".$beo[0]."] ".$beo[3]." ".$beo[2].", ".$beo[9]." (".strtoupper($beo[11]).")<br/>";
-		
+	//Daten bereitstellen User > Instruments
+        $this->import('FrontendUser', 'User');
+        $userid = $this->User->id;
 
+//Informationen zum Observer
+        $sql="SELECT * from tl_member WHERE id = ".$userid;
+        $result = $this->Database->prepare($sql)->execute();
+        $this->Template->observer = $result->id;
+        $this->Template->lname = $result->lastname;
+        $this->Template->fname = $result->firstname;
+        $this->Template->city = $result->city;
+        $this->Template->country = strtoupper($result->country);		
+
+//Show all instrument for this user
+        $sql="SELECT *, tl_instrument.id as inid from tl_instrument WHERE i_id=".$userid;
+        
+        $result2 = $this->Database->prepare($sql)->execute();
+
+        $instArray = array();
+        while($result2->next())
+        {
+            $instaArray[] = array
+		(
+			'id' => $result2->inid,
+			'i_id' => $result2->i_id,
+            'i_aperture' => $result2->i_aperture,
+            'i_focal_length' => $result2->i_focal_length,
+            'i_filter' => $result2->i_filter,
+            'i_method' => $result2->i_method,
+            'i_magnification' => $result2->i_magnification,
+            'i_projection' => $result2->i_projection,
+            'i_inputpref' => $result2->i_inputpref,
+                );
+        }
+        $this->Template->allinstr = $instaArray;
 		
 		if($_REQUEST['modifyinst']==1){ //Instrument modifizieren!
 			if(isset($code)){
@@ -48,22 +71,35 @@ public function generate()
 					$instcode=$_REQUEST['inst'];
 				} else {
 					echo "Error: Kein Instrument gewählt ...";
-					break;
+					//break;
 				}
 			}
 			
-			$sql="SELECT * from tl_instrument, tl_member WHERE tl_instrument.id=".$instcode." AND tl_member.id = i_id";
+		$sql="SELECT *, tl_instrument.id as inid from tl_instrument, tl_member WHERE tl_instrument.id=".$instcode." AND tl_member.id = i_id";
+        //echo $sql;
+        $result = $this->Database->prepare($sql)->execute();
 
-			$beob=mysql_query($sql) or die(mysql_error());
-			$beo=mysql_fetch_row($beob);
-
-			$this->Template->instrument = "[".$beo[0]."] ".$beo[3]." ".$beo[4]." ".$beo[5]." / ".$beo[6].", Mag. ".$beo[9]."</p>";
-			
-
-			$this->Template->modifyinst = 1;
-			$this->Template->instcode = $instcode;
-			$this->Template->inputpref = $beo[11];
+        $instArray = array();
+        while($result->next())
+        {
+            $instArray[] = array
+		(
+			'id' => $result->inid,
+			'i_id' => $result->i_id,
+            'i_aperture' => $result->i_aperture,
+            'i_focal_length' => $result->i_focal_length,
+            'i_filter' => $result->i_filter,
+            'i_method' => $result->i_method,
+            'i_magnification' => $result->i_magnification,
+            'i_projection' => $result->i_projection,
+            'i_inputpref' => $result->i_inputpref,
+                );
+        }
+        $this->Template->instr = $instArray;
+		$this->Template->modifyinst = 1;	
 		}
+        
+        
 		if($_REQUEST['saveinstmod']==1){ //Aktivierung Instrument speichern
 			
 			$icode = $_REQUEST['icode'];
@@ -71,21 +107,55 @@ public function generate()
 			//echo $icode."/".$ispez."<br/>";
 			$sql = "UPDATE tl_instrument set i_inputpref = ".$ispez." WHERE id=".$icode;
 			//echo $sql."<br/>";
-			$doit = mysql_query($sql) or die(mysql_error());
-			$sql="SELECT * from tl_instrument, tl_member WHERE tl_instrument.id=".$icode." AND tl_member.id = i_id";
+			$result = $this->Database->prepare($sql)->execute();
+			$sql="SELECT *, tl_instrument.id as inid from tl_instrument,  tl_member WHERE tl_instrument.id=".$icode." AND tl_member.id = i_id";
 			//echo $sql;
-			$beob=mysql_query($sql) or die(mysql_error());
-			$beo=mysql_fetch_row($beob);
-			$this->Template->instrument = "[".$beo[0]."] ".$beo[3]." ".$beo[4]." / ".$beo[5].", ".$beo[6].", Mag. ".$beo[9]."</p>";
-			$this->Template->instcode = $icode;
-			$this->Template->inputpref = $ispez;
-			$this->Template->modifyinst = 1;
-			$this->Template->saveinstmod = 1;
+			 $result = $this->Database->prepare($sql)->execute();
+
+        $instArray = array();
+        while($result->next())
+        {
+            $inst2Array[] = array
+		(
+			'id' => $result->inid,
+			'i_id' => $result->i_id,
+            'i_aperture' => $result->i_aperture,
+            'i_focal_length' => $result->i_focal_length,
+            'i_filter' => $result->i_filter,
+            'i_method' => $result->i_method,
+            'i_magnification' => $result->i_magnification,
+            'i_projection' => $result->i_projection,
+            'i_inputpref' => $result->i_inputpref,
+                );
+        }
+        $this->Template->instr = $inst2Array;
+		$this->Template->safeinstmode = 1;	
 		}
+        
 		if($_REQUEST['viewinst']==1){
-			$this->Template->viewinst = 1;
-			
+            $sql1='SELECT *, tl_instrument.id as inid from tl_instrument, tl_member WHERE i_id = '.$userid.' AND i_id=tl_member.id ORDER BY tl_instrument.id';
+			$result = $this->Database->prepare($sql)->execute();
+            $instArray = array();
+            while($result->next())
+        {
+            $inst3Array[] = array
+		(
+			'id' => $result->inid,
+			'i_id' => $result->i_id,
+            'i_type' => $result->i_type,
+            'i_aperture' => $result->i_aperture,
+            'i_focal_length' => $result->i_focal_length,
+            'i_filter' => $result->i_filter,
+            'i_method' => $result->i_method,
+            'i_magnification' => $result->i_magnification,
+            'i_projection' => $result->i_projection,
+            'i_inputpref' => $result->i_inputpref,
+                );
+        }
+        $this->Template->instr = $inst3Array;
+        $this->Template->viewinst = 1;
 		}
+        
 		if($_REQUEST['newinst']==1){
 			$this->Template->newinst = 1;
 		}
