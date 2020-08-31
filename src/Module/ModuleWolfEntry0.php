@@ -13,7 +13,7 @@ public function generate()
         if (TL_MODE == 'BE')
         {
             $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### ' . utf8_strtoupper($GLOBALS['TL_LANG']['FMD']['wolfentry0'][0]) . ' ###';
+            $objTemplate->wildcard = '### wolfentry0 ###';
             //$objTemplate->firma = $this->headline;
             return $objTemplate->parse();
         }
