@@ -1,19 +1,19 @@
 <?php
 namespace Pnwscm60\Wolf20Bundle\Module; 
-class ModuleWolfEntry2 extends \Contao\Module
+class ModuleWolfEntry extends \Contao\Module
 {
 	/**
 	 * Template
 	 * @var string
 	 */
-	protected $strTemplate = 'mod_wolfentry2';
+	protected $strTemplate = 'mod_wolfentry';
  
 public function generate()
     {
         if (TL_MODE == 'BE')
         {
             $objTemplate = new \BackendTemplate('be_wildcard');
-            $objTemplate->wildcard = '### wolfentry2 ###';
+            $objTemplate->wildcard = '### wolfentry ###';
             return $objTemplate->parse();
         }
     return parent::generate();
