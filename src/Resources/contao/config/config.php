@@ -6,7 +6,7 @@
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfAdmin;
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfEntry0;
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfEntry1;
-use Pnwscm60\Wolf20Bundle\Module\ModuleWolfEntry2;
+use Pnwscm60\Wolf20Bundle\Module\ModuleWolfEntry;
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfProfil;
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfGraph;
 use Pnwscm60\Wolf20Bundle\Module\ModuleWolfInstedit;
@@ -18,7 +18,7 @@ $GLOBALS['FE_MOD']['wolf20'] = [
 	'admin' => ModuleWolfAdmin::class,
 	'entry0' => ModuleWolfEntry0::class,
 	'entry1' => ModuleWolfEntry1::class,
-	'entry2' => ModuleWolfEntry2::class,
+	'entry2' => ModuleWolfEntry::class,
 	'profil' => ModuleWolfProfil::class,
 	'graph' => ModuleWolfGraph::class,
 	'instedit' => ModuleWolfInstedit::class,
