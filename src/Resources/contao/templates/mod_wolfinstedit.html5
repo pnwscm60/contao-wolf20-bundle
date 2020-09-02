@@ -10,11 +10,10 @@ if($this->modifyinst==1):?>
 <div style='clear:left;'>Observer: 
 [<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)
 <br/>
-<?php if ($this->instr): foreach ($this->instr as $inst): ?>
-Instrument: [<? echo $inst['id']?> – <? echo $inst['i_id']?>] <?php echo $inst['i_type'].' '.$inst['i_aperture'].'/'.$inst['i_focal_length'].' '.$inst['i_filter'].' Mag. '.$inst['i_magnification']?>
-<?$inputpref = $inst['i_inputpref'];?>
-<?$icode = $inst['id'];?>
-<? endforeach; endif;?>
+Instrument: [<? echo $this->id?>] <?php echo $this->i_type.' '.$this->i_aperture.'/'.$this->i_focal_length.' '.$this->i_filter.' Mag. '.$this->i_magnification?>
+<?$inputpref = $this->i_inputpref;?>
+<?$icode = $this->id;?>
+
 </div>
 <div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
 	<?php if($this->saveinstmod==1):?>
@@ -22,11 +21,7 @@ Instrument: [<? echo $inst['id']?> – <? echo $inst['i_id']?>] <?php echo $inst
 		<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
 		<div class="okmessage">Activation/deactivation for this instrument has been saved</div></div>
 	<?php endif;?>
-	<?php if($this->newmessage!=''):?>
-		<div style="height:22px;width:700px;clear:both;margin-bottom:1em;">
-		<div style="float:left; width:160px; margin-right:15px;">&nbsp;</div>
-		<div class="okmessage"><?php echo $this->newmessage?></div></div>
-	<?php endif;?>
+	
 	<p style="clear:left;">You can activate or deactivate this instrument now. Please choose the appropriate activation key:</p>
 	<p>0 = deactivate this instrument<br/>
 		1 = activate this instrument for daily observation <b>without</b> Waldmeier classification<br/>
@@ -60,14 +55,10 @@ Instrument: [<? echo $inst['id']?> – <? echo $inst['i_id']?>] <?php echo $inst
     <div style='clear:left;'>Observer: 
     [<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)
     <br/>
-    <?php if ($this->instr): foreach ($this->instr as $inst): ?>
-    Instrument: [<? echo $inst['id']?>] <?php echo $inst['i_type'].' '.$inst['i_aperture'].'/'.$inst['i_focal_length'].' '.$inst['i_filter'].' Mag. '.$inst['i_magnification']?>
-    <?$inputpref = $inst['i_inputpref'];?>
-    <? endforeach; endif;?>
+    Instrument: [<? echo $this->id?>] <?php echo $this->i_type.' '.$this->i_aperture.'/'.$this->i_focal_length.' '.$this->i_filter.' Mag. '.$this->i_magnification?>
+
 </div>
     <div style="width:100%;clear:left;height:1px;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
-	
-	
 	<div class="okmessage">Activation/deactivation for this instrument has been saved</div></div>
     <a href="instedit.html" style="margin-top:1em;" class="btn btn-primary">go back</a>
 
@@ -76,31 +67,42 @@ Instrument: [<? echo $inst['id']?> – <? echo $inst['i_id']?>] <?php echo $inst
 <div id="inew" style="
 <?php echo $this->newinst==1 ? "display:block;clear:both;":"display:none;";
 	?>">
-<h2>New instrument</h2>	
-	<p style='clear:left;'>Observer:<br/>
-	<?php echo $this->observer;
-?>
+<h2>New instrument</h2>
+	<div style='clear:left;'>Observer: 
+[<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)</div>
 	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
-<?php // Abfrage userdaten
-$sql='SELECT id, lastname, firstname from tl_member WHERE id = '.$this->userid.';';
-$dosql2=mysql_query($sql) or die(mysql_error());
 
-?>
+<?php if($this->savenewinst==1):?>
+    
+	<div class="okmessage">Your new instrument has been saved. To use it for observation, you have to activate it now.</div></div>
+    <a href="instedit.html" style="margin-top:1em;" class="btn btn-primary">go back</a>
+    
+<?php else: ?>
+
 <form name="newinstr" method="post" action="instedit.html" class="selectform">
 <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
 <input type="hidden" name="savenewinst" value="1">
-<table width="66%">
-<tr><td class="tn">User</td>
-<td><SELECT name="id">
-<?php
-while($user=mysql_fetch_row($dosql2)){
-	echo '<option value="'.$user[0].'">'.$user[1].' '.$user[2].'</option>';
-}
-?></SELECT></td><td>&nbsp;</td></tr>
-<tr><td class="tn">Type</td><td><SELECT name="type"><option value="Refl">Refl</option><option value="Refr" selected>Refr</option><option value="Bino" >Bino</option><option value="SDO">SDO</option></SELECT></td></tr>
-<tr><td class="tn">Aperture</td><td><input type="text" name="aperture" value=""> mm</td><td style="color:#888;">SDO: 140 mm</td></tr>
-<tr><td class="tn">Focal length</td><td><input type="text" name="focal" value=""> mm</td><td style="color:#888;">SDO: 4950 mm</td></tr>
-<tr><td class="tn">Filter</td><td><SELECT name="filter">
+<div class="tbl flex">
+    <div class="w100 tblabel">User </div>
+    <input class="form-control w200" type="text" name="user" value="<? echo $this->lname.' '.$this->fname?>" readonly>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Type </div>
+    <SELECT name="type" class="form-control w100"><option value="Refl">Refl</option><option value="Refr" selected>Refr</option><option value="Bino" >Bino</option><option value="SDO">SDO</option></SELECT>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Aperture</div>
+    <input type="text" class="form-control w100" name="aperture" value="">
+    <div class="tblafter">mm [SDO: 140 mm]</div>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Focal length</div>
+    <input type="text" class="form-control w100" name="focal" value="">
+    <div class="tblafter">mm [SDO: 4950 mm]</div>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Filter</div>
+    <SELECT name="filter" class="form-control w150">
 <option value="welder glass">welder Glass</option>
 <option value="eyepiece filter" >eyepiece filter</option>
 <option value="mylar filter" >mylar filter</option>
@@ -109,26 +111,44 @@ while($user=mysql_fetch_row($dosql2)){
 <option value="helioscope" selected >helioscope</option>
 <option value="film filter" >film filter</option>
 <option value="HMIIF" >HMIIF</option>
-</SELECT></td><td style="color:#888;">SDO: HMIIF</td></tr>
-<tr><td class="tn">Method</td><td><SELECT name="method">
+</SELECT>
+    <div class="tblafter">[SDO: HMIIF]</div>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Method</div>
+    <SELECT name="method" class="form-control w150">
 <option value="eyepiece" selected>eyepiece</option>
 <option value="projection" >projection</option>
 <option value="screen" >screen</option>
-</SELECT></td><td style="color:#888;">SDO: screen</td></tr>
-<tr><td class="tn">Magnification</td><td><input type="text" name="mag" value=""></td><td style="color:#888;">SDO: 2048</td></tr>
-<tr><td class="tn">Projection</td><td><input type="text" name="project" value=""> mm</td><td style="color:#888;">SDO: 0 mm</td></tr>
-<tr><td class="tn">Input pref.</td><td align="left"><div align="left">
-  <SELECT name="input">
-    <option value="0" selected>deactivated</option>
-  </SELECT>
-</div></td></tr>
-
-	<tr><td></td><td><button type="submit" value="save">save</button></td></tr>
-</table>
+</SELECT>
+    <div class="tblafter">[SDO: screen]</div>
+</div>    
+<div class="tbl flex">
+    <div class="w100 tblabel">Magnification</div>
+    <input type="text" class="form-control w100" name="mag" value="">
+    <div class="tblafter">[SDO: 2048]</div>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">Projection</div>
+    <input type="text" class="form-control w100" name="project" value="">
+    <div class="tblafter">mm [SDO: 0 mm]</div>
+</div>    
+<div class="tbl flex">
+    <div class="w100 tblabel">Input pref.</div>
+    <SELECT class="form-control w150" name="input" readonly><option value="0" selected>deactivated</option></SELECT>
+    <div class="tblafter">to be activated trough activiation procedure</div>
+</div>
+<div class="tbl flex">
+    <div class="w100 tblabel">&nbsp;</div>
+    <button class="btn btn-primary" style="margin-right:0.5em;" type="submit" value="save">save</button>
+    <a href="instedit.html" class="btn btn-primary">go back</a>
+</div>
+	
 </form>
 
 </div>
 <div class="clear" style="height:2em;">&nbsp;</div>
+<?php endif;?>
 
 <?php elseif($this->viewinst==1):  /****  ALLE INST ANZEIGEN  ****/?>
 	<h2>Your instruments</h2>	
@@ -322,7 +342,7 @@ echo '</form>';
 	
 	<div class='form-group w5'>
 	<label for "chinst">Choose your instrument</label>
-	<SELECT name='inst' id="chinst" size='1' class="form-control">
+	<SELECT name='inst' id="chinst" class="form-control">
         
         <?php if ($this->allinstr): foreach ($this->allinstr as $ains): ?>
 		<option value='<? echo $ains['id']?>'><? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?></option>
@@ -337,6 +357,6 @@ echo '</form>';
 	 <div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:2em;">&nbsp;</div>
 	<div id="showbut1" >
 	<h2>Instrument administration</h2>
-		<div ><a href="instedit.html?viewinst=1" style="margin-right:1.5em;">View Instruments</a><a href="instedit.html?newinst=1" style="margin-right:1.5em;">New Instrument</a><a href="instedit.html?instexcel=1" style="margin-right:1.5em;">Export to MSExcel</a></div></div>
+		<div ><a href="instedit.html?viewinst=1" class="btn btn-primary" style="margin-right:0.5em;">View Instruments</a><a href="instedit.html?newinst=1" class="btn btn-primary" style="margin-right:0.5em;">New Instrument</a><a href="instedit.html?instexcel=1" class="btn btn-primary">Export to csv</a></div></div>
  <?php endif;?>
 	</script>
