@@ -1,1 +1,799 @@
+
 <h1>Data entry</h1>
+<div style='clear:left;'>Observer: 
+[<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)</div>
+	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+<? if($this->step0 == 1):?>
+<? if($this->newmessage!=''):?>
+    <div class="okmessage w5" style="margin-bottom:1em;"><? echo $this->newmessage?></div>
+<? endif;?>
+<form name='choose' id="form1" class="selectform needs-validation" action='instrument.html' method='post' novalidate>
+<input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+<input type="hidden" name="step1" value="1">
+<?php if(empty($this->allinstr)):?>
+	<p>There are no instruments for your id in our database.<br/>Please request a new instrument entry by the webmaster!</p>
+	<?php else:?>
+	
+	<div class='form-group w5'>
+	<label for "chinst">Choose your instrument</label>
+	<SELECT name='inst' id="chinst" class="form-control">
+        
+        <?php if ($this->allinstr): foreach ($this->allinstr as $ains): ?>
+		<option value='<? echo $ains['id']?>' <?php if (!strcmp($this->code, $ains['id'])) {echo "selected=\"selected\"";} ?>><? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?></option>
+		<? endforeach; endif;?>
+	</SELECT>
+    </div>
+     <?php $heute = date("Y-m-d");?>
+	
+	<div class="form-group">
+        <label for="cdate">Data from</label>
+        <input type="date" class="text form-control w150" value="<?php echo $heute?>" id="cdate" name="cdate" pattern="^((0[1-9]|[12]\d|3[01]).(0[1-9]|1[0-2]).[12]\d{3})$" max="<?php echo $heute?>" data-date-format="dd.mm.yyyy" required>
+    <div class="invalid-tooltip">Please provide a valid date [dd.mm.YYYY]</div>
+    </div>
+	<button type='submit' name='insave' id="btn-step0" class="btn btn-primary" value='go'>continue</button>
+<?php endif;?>
+</form>
+<?php endif;?>
+<!-- STEP1 = inputpref tested, warning + cancel OR no dublette, if group > enter time/g/Q -->
+<!-- DAILY AND GROUP -->
+<? if($this->step1 == 1):?>
+    <? if($this->warning!=''):?>
+        <div class="warnmessage"><? echo $this->warning?></div></div>
+        <a href="instrument.html" style="margin-top:1em;" class="btn btn-primary">go back</a>
+    <? else:?>
+    <!-- this must be group > enter additional data for group entry -->
+    <? endif;?>
+<? endif;?>
+
+<!-- STEP2 = for daily Input > enter all data-->
+<!-- DAILY ONLY -->
+<? if($this->step2 == 1):?>
+    <h2>Daily observation</h2>
+    <form class="selectform needs-validation" action='instrument.html' method='post' id="form2"  novalidate>
+        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+        <input type="hidden" name="savemode" value="basic">
+         <input type="hidden" name="instcode" value="<? echo $this->instcode?>">
+        <div class="form-group">
+            <label for="code">Instrument</label>
+            <input type="text" class="text form-control w5" value="
+             <?php if ($this->inst): foreach ($this->inst as $ains): ?>
+            <? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?>
+            <? endforeach; endif;?>
+            " id="code" name="code" readonly>
+        </div>
+        <div class="flex">
+        <div class="form-group flexitem1">
+            <label for="cdate">Date</label>
+            <input type="text" class="text form-control w100" value="<?php echo $this->cdate?>" id="cdate" name="cdate" readonly>
+            </div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="HHMM, eg. 1200">
+            <label for="UT">UT</label>
+            <input data-toggle="tooltip" data-placement="top" type="text" class="text form-control w75" data-validation="custom" data-validation-error-msg=" " data-validation-regexp="^([0-1][0-9][0-5][0-9]|2[0-3][0-5][0-9])$" autofocus value="<?php echo $ut?>" id="ut" name="UT" required/>        
+            </span><div class="invalid-tooltip">Please provide a valid time [hhmm]</div>
+            </div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="1–5/missing=9">
+            <label for="qu">Q</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w62" type="text" data-validation="custom" data-validation-error-msg=" " value="" data-validation-regexp="^([123459])$" id="qu" size="2" name="qu"/>
+        </span></div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="ge">Wolf g</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w62" type="text" data-validation="custom" data-validation-error-msg=" " value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="ge" size="2" name="ge"/>
+        </span></div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="0–600">
+            <label for="ef">f</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w75" type="text" data-validation="custom" data-validation-error-msg=" " value="" data-validation-regexp="^([0-9]|[1-9][0-9]|[1-5][0-9][0-9]|600)$" id="ef" size="2" name="ef"/>
+        </span></div>
+        </div>
+        <? if($this->input==2): //WALDMEIER activated?>
+        <input type="hidden" name="savewald" value="yes">
+        <div>Waldmeier classifiction</div>
+        <div class="flex">
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="a">A</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid A" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="a" size="2" name="a"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="b">B</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid B" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="b" size="2" name="b"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="c">C</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid C" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="c" size="2" name="c"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="d">D</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid D" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="d" size="2" name="d"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="e">E</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid E" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="e" size="2" name="e"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="f">F</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid F" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="f" size="2" name="f"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="g">G</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid G" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="g" size="2" name="g"/>
+            </span></div>
+            <div class="form-group flexitem1">
+            <label for="h">H</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid H" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="h" size="2" name="h"/>
+            </span></div>
+            <div class="form-group flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="j">J</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" data-validation="custom" data-validation-error-msg="invalid J" value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="j" size="2" name="j"/>
+            </span></div>
+        </div>
+        <? endif;?>
+        <div class="form-group">
+        <button class="btn btn-primary" style="margin-right:0.5em;" type="submit" value="save">save</button><button class="btn btn-primary" style="margin-right:0.5em;" type="reset" value="erase">reset</button>
+    <a href="instedit.html" class="btn btn-primary">go back</a>
+</div>
+    </form>
+<? endif;?>
+
+
+<!-- STEP3 = for group Input > collect basic data to prepare full form -->
+<!-- GROUP ONLY -->
+<? if($this->step3 == 1):?>
+    <?
+if($this->input==5){ // part for SDO-Image > prepare button to open image
+    //echo $this->cdate;    
+$lim = $this->ht;
+	if($this->at>$lim){
+        echo "zu neu";
+		//zu neu, da gibt es noch keine Bilder
+			$sd=1;
+		echo "<script language=javascript>location.assign('instrument.html?sd=1&inst=".$this->instcode."');</script>";
+	} else {
+        
+//if($fl!=1) {
+    $dat=preg_split("/[.]+/", $this->cdate);
+    
+	$dparse = $cdatedp[2]."-".$dp[1]."-".$dp[0];
+    ?>
+    <input type="button" class="btn btn-primary" onclick="window.open('files/institute/sdoimg/<? echo $dat[2].$dat[1].$dat[0]?>_2048.jpg','myWindow','height=2048,width=2048,menubar=no,status=no').focus();return false;" value="Open SDO-Image">
+<?
+} 
+}
+?>
+    <h2>Group observation</h2>
+    <form class="selectform" action='instrument.html' method='post'>
+        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+        <input type="hidden" name="inst" value="<? echo $this->instcode?>">
+        <input type="hidden" name="step3" value="1">
+        <div class="form-group">
+            <label for="code">Instrument</label>
+            <input type="text" class="text form-control w5" value="
+             <?php if ($this->inst): foreach ($this->inst as $ains): ?>
+            <? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?>
+            <? endforeach; endif;?>
+            " id="code" name="code" readonly>
+        </div>
+        <div class="flex">
+        <div class="form-group flexitem1">
+            <label for="cdate">Date</label>
+            <input type="text" class="text form-control w100" value="<?php echo $this->cdate?>" id="cdate" name="cdate" readonly>
+            </span></div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="HHMM eg. 1200">
+            <label for="UT">UT</label>
+            <input type="text" class="text form-control w75"  data-validation="custom" data-validation-error-msg=" " data-validation-regexp="^([0-1][0-9][0-5][0-9]|2[0-3][0-5][0-9])$" value="<?php echo $this->input == 5 ? '0800' : ''?>" id="ut" name="UT" <?php echo $this->input == 5 ? 'readonly' : 'autofocus'?>/>
+        </span></div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="1–5/missing=9">
+            <label for="qu">Q</label>
+            <input class="text form-control w75" type="text" data-validation="custom" data-validation-error-msg=" " value="<?php echo $this->input == 5 ? '1' : ''?>" data-validation-regexp="^([123459])$" id="qu" size="2" name="qu" <?php echo $this->input == 5 ? 'readonly' : ''?>/>
+        </span></div>
+        <div class="form-group flexitem1">
+            <span class="hint--top hint--rounded" aria-label="0–30">
+            <label for="ge">Wolf g</label>
+            <input class="text form-control w75" type="text" data-validation="custom" data-validation-error-msg=" " value="" data-validation-regexp="^([0-9]|[0-2][0-9]|30)$" id="ge" size="2" name="ge" <?php echo $this->input == 5 ? 'autofocus' : ''?>/>
+        </span></div>
+        </div>
+        <div class="form-group">
+        <button class="btn btn-primary" style="margin-right:0.5em;" type="submit" value="save">prepare form</button><button class="btn btn-primary" style="margin-right:0.5em;" type="reset" value="erase">reset</button>
+    <a href="instedit.html" class="btn btn-primary">cancel</a>
+</div>
+    </form>
+<? endif; ?>
+
+<!-- STEP4 for group input > collect all data for number of groups -->
+<? if($this->step4 == 1):?>
+    <h2>Group observation</h2>
+    <form class="selectform" action='instrument.html' method='post'>
+        <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
+        <input type="hidden" name="incode" value="<? echo $this->code?>">
+        <input type="hidden" name="step4" value="1">
+        <input type="hidden" name="pref" value="<?php echo $this->input?>"/>
+        <div class="form-group">
+            <label for="code">Instrument</label>
+            <input type="text" class="text form-control w5" value="
+             <?php if ($this->inst): foreach ($this->inst as $ains): ?>
+            <? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?>
+            <? endforeach; endif;?>
+            " id="code" name="code" readonly>
+        </div>
+        <div class="flex">
+        <div class="form-group flexitem1">
+            <label for="cdate">Date</label>
+            <input type="text" class="text form-control w100" value="<?php echo $this->cdate?>" id="cdate" name="cdate" readonly>
+        </div>
+        <div class="form-group flexitem1">
+            <label for="UT">UT</label>
+            <input data-toggle="tooltip" data-placement="top" title="hhmm" type="text" class="text form-control w75"  value="<?php echo $this->UT?>" id="ut" name="UT" readonly/>
+        </div>
+        <div class="form-group flexitem1">
+            <label for="qu">Q</label>
+            <input data-toggle="tooltip" data-placement="top" title="1–5/missing=9" class="text form-control w50" type="text" value="<?php echo $this->qu?>" id="qu" size="2" name="qu" readonly/>
+        </div>
+        <div class="form-group flexitem1">
+            <label for="ge">Wolf g</label>
+            <input data-toggle="tooltip" data-placement="top" class="text form-control w50" type="text" value="<?php echo $this->ge?>" id="ge" size="2" name="ge" readonly/>
+        </div>
+        </div>
+        <? if($this->ge > 0):?>
+        <div class="flex fo1 tblhead1" style="width:<? echo $this->input==5 ? '620px' : '585px'?>;">
+            <div class="flexitem1 w30">Nr</div><div class="flexitem1 w75">f</div><div class="flexitem1 w75">Zpd</div><div class="flexitem1 w62">p</div><div class="flexitem1 w75">s</div>
+            <? echo ($this->input==5||$this->input==6) ? '<div class="flexitem1 w100">Pos</div><div class="flexitem1 w62">Sector</div>' : '<div class="flexitem1 w62">Sector</div>';?>
+            <? echo ($this->input==4) ? '<div class="flexitem1 w62">A</div>' : '';?>
+        </div>
+        <? else:?>
+            <div class="alertmessage">You indicated 0 groups for this observation. Saving with 0 observed groups now.</div>
+        <? endif;?>
+        <? $i = 0; ?>
+        <? while($i<$this->ge):?>
+        
+            <div class="flex" style="margin-top:0.5em;margin-bottom:0.5em;padding-bottom:0.5em;border-bottom:1px solid #aaa;">
+            <div class="flexitem1 w30 fo1" style="font-size:1.3em;margin-top:8px;"><? echo $i+1;?></div>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="1–500">
+                <input type="text" name="f[]" class="f form-control w75" data-validation="custom" data-inp="<? echo $this->input;?>" data-validation-regexp="^([1-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)$" data-validation-error-msg=" " id="f<?php echo $i?>" size="3" <? echo $i==0 ? 'autofocus':''?>>
+            </span></div>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="Zpd values">
+                <input type="text" name="zpd[]" size="5" class="form-control w75 basicAutoComplete zpd" data-inp="<? echo $this->input;?>" data-validation="custom" data-validation-regexp="^(Axi|Axx|Bxi|Bxo|Cri|Csi|Cai|Chi|Cki|Cro|Cso|Cao|Dri|Dro|Dsi|Dsc|Dso|Dai|Dac|Dao|Dhi|Dhc|Dki|Dkc|Eri|Esi|Esc|Eai|Eac|Ehi|Ehc|Eki|Ekc|Fri|Fsi|Fsc|Fac|Fai|Fhi|Fhc|Fki|Fkc|Cho|Cko|Dho|Dko|Ero|Eso|Eao|Eho|Eko|Fro|Fso|Fao|Fho|Fko|Hhx|Hhi|Hhc|Hkx|Hki|Hkc|Hrx|Hri|Hrc|Hsx|Hsi|Hsc|Hax|Hai|Hac)$" data-validation-error-msg=" " autocorrect="off" autocapitalize="off" spellcheck="false" id="zpd<?php echo $i?>">
+            </span></div>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–20">
+                <input type="text" name="pp[]" class="form-control w62 p" data-validation="custom" data-inp="<? echo $this->input;?>" data-validation-regexp="^([0-9]|1[0-9]|20)$" data-validation-error-msg=" " size="5" id="p<?php echo $i?>" >
+            </div>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–500">
+            <input type="text" class="s form-control w75" data-validation="custom" data-validation-regexp="^([0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)$" data-validation-error-msg=" " name="ss[]" data-validation-error-msg="invalid s" size="5" class="s" id="s<?php echo $i?>">
+            </span></div>
+                <? if($this->input == 5||$this->input == 6):?>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="NS##WE## eg N15E24">
+                <input type="text" class="form-control w100" name="pos[]" class="form-control w75" data-validation="custom" data-validation-regexp="^([NS][0-9][0-9][WE][0-9][0-9])$" data-validation-error-msg=" " id="pos<? echo $i ?>">
+            </span></div>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–4">
+                <input type="text" name="sect[]" class="form-control w62" data-validation="custom" data-validation-regexp="^([1-4])$" data-validation-error-msg=" " id="se<? echo $i ?>" size="5">
+            </span></div>
+                <? else:?>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–4">
+                <input type="text" name="sect[]" class="form-control w62" data-validation="custom" data-validation-regexp="^([1-4])$" data-validation-error-msg=" " id="se<? echo $i ?>" size="5">
+            </span></div>
+            <? endif;?>
+           <? if($this->input == 4):?>
+            <div class="flexitem1">
+                <span class="hint--top hint--rounded" aria-label="0–5">
+                <input type="text" title="0–5" class="form-control w62 A" data-validation="custom" data-validation-regexp="^([0-5])$" data-validation-error-msg=" " name="a[]" size="5" value="0" id="a<?php echo $i?>">
+            </span></div>
+            <? endif;?>
+            <div class="flexitem1"><a class="clear" id="clear<? echo $i ?>">
+    <svg class="bi" width="30" height="30" fill="default" style="margin-top:8px;margin-left:-4px;color:#c03">
+  <use xlink:href="files/icons/bootstrap-icons.svg#backspace"/>
+</svg></a></div>
+            </div>
+        <? $i++; ?>
+        <? endwhile;?>
+            
+        <div class="form-group">
+        <button class="btn btn-primary" style="margin-right:0.5em;" type="submit" value="save">save</button><button class="btn btn-primary" style="margin-right:0.5em;" type="reset" value="erase">reset</button>
+        <a href="instrument.html" class="btn btn-primary">cancel</a>
+        </div>
+
+  <!--      <button type="submit" name="daysave" 
+
+		value="save" style="margin-top:10px;">save</button> -->
+<!-- SUMMATION nur zeigen, wenn mehr als 0 Gruppen -->
+<? if($this->ge > 0):?>
+<h3>Summation</h3>
+<div class="flex">
+    <div class="booo erstcol">Datum</div>
+    <div class="boo">UT</div>
+    <div class="bo">Q</div>
+    <div style="width:5px;">&nbsp;</div>
+    <div class="boo erstcol">g</div>
+    <div class="bo">f</div>
+    <div class="bo">Re</div>
+    <div class="bo">A</div>
+    <div class="bo">B</div>
+    <div class="bo">C</div>
+    <div class="bo">D</div>
+    <div class="bo">E</div>
+    <div class="bo">F</div>
+    <div class="bo">G</div>
+    <div class="bo">H</div>
+    <div class="bo">J</div>
+</div>
+<div class="flex">    
+    <div id="b1" class="buuu erstcol" ><?php echo $this->cdate?></div>
+    <div id="b2" class="buu" ><?php echo $this->UT?></div>
+    <div id="b3" class="bu"><?php echo $this->qu?></div>
+    <div style="width:5px;">&nbsp;</div>
+    <div id="b4" class="buu erstcol"><?php echo $this->ge?></div>
+    <div id="b5" class="bu">0</div>
+    <div id="bRe" class="bu">0</div>
+    <div id="bA" class="bu">0</div>
+    <div id="bB" class="bu">0</div>
+    <div id="bC" class="bu">0</div>
+    <div id="bD" class="bu">0</div>
+    <div id="bE" class="bu">0</div>
+    <div id="bF" class="bu">0</div>
+    <div id="bG" class="bu">0</div>
+    <div id="bH" class="bu">0</div>
+    <div id="bJ" class="bu">0</div>
+</div>
+
+<div class="flex" style="margin-top:0.5em;">
+    <div class="boo erstcol">p</div>
+    <div class="bo">s</div>
+    <div class="bo">SN</div>
+    <div class="bo">gr</div>
+    <div class="bo">grfp</div>
+    <div class="bo">grf</div>
+    <div class="bo">efp</div>
+    <div class="bo">ef</div>
+    <div class="bo">IS</div>
+ </div>
+<div class="flex">
+    <div id="bp" class="buu erstcol">0</div>
+    <div id="bs" class="bu">0</div>
+    <div id="bSN" class="bu">0</div>
+    <div id="bgr" class="bu">0</div>
+    <div id="bgrfp" class="bu">0</div>
+    <div id="bgrf" class="bu">0</div>
+    <div id="befp" class="bu">0</div>
+    <div id="bef" class="bu">0</div>
+    <div id="bIS" class="bu">0</div>
+</div>
+<? endif;?>
+
+<?php //</div> ?>
+</form>
+<div style="margin-bottom:1em">&nbsp;</div>
+
+
+<? if($this->input==5){ //&& $fl==1)||$this->i_inputpref==6 && $fl==1){   // Wenn SDO > image zeigen zur Loaklisation
+?>
+<?php if($this->input==5):?>
+<div style="margin-top:1em;margin-bottom:0.5em;">Use full size image to search for solar spots. Click in the table above in the position field of a given spot group. Click then on the corresponding spot group in the image below to retrieve position and sector of this spot group. Position and sector will be entered automatically in the corresponding group row.</div>
+<?php endif;?>
+<?php if($this->input==6):?>
+<div style="margin-top:1em;margin-bottom:0.5em;">You have to load first your image into the canvas (click on the button "Load image" to enter a valid location of this image. Click in the table above in the position field of a given spot group. Click then on the corresponding spot group in the image below to retrieve position and sector of this spot group. Position and sector will be entered automatically in the corresponding group row.</div>
+<?php endif;?>
+<div id="posect" class="fo1" style="font-size:24px;"><div style="float:left;width:73px;">Position: </div><div id = "sco" style="float:left;width:90px;">&nbsp;</div><div style="float:left; width:60px;">Sector: </div><div id="sco1"></div></div><div style="clear:both"></div>
+<?php
+
+$y = $dp[2];
+$mo = $dp[1];
+$d = $dp[0];
+if($this->input==5){
+	$h = '08';
+	$mi = '00';
+} else {
+	$h = substr($ut,0,2);
+	$mi = substr($ut,2,2);
+}
+$minu = floor($mi/15)*15;
+$minut = ($minu==0) ? "00" : $minu;
+?>
+
+<?php
+
+
+
+//Da muüssen aber andere Zeitdaten rein für draw!
+
+// Neues Skript adaptiert aus Kanzelhöhe jscript
+$radian = 180/3.1415926;
+if ($mo <= 2) {
+	$y = $y - 1;
+	$mo = $mo + 12;
+}
+
+$a = floor($y/100);
+$b = 2 - $a + floor($a/4);
+
+$d =$d+ $ti/24;
+$jdg = floor(365.25*($y+4716))+floor(30.6001*($mo+1))+$d+$b-1524.5;
+$jd = $jdg;
+$jd0 = floor($jdg+0.5)-0.5;
+// Julian day 0h UT
+$theta = ($jd-2398220)*360/25.38;
+$inc = 7.25/$radian;
+$k = (73.6667+1.3958333*($jd-2396758)/36525)/$radian;
+$t = ($jd-2451545)/36525;
+$t2=$t*$t;
+$t3=$t*$t2;
+$gmst=280.46061837+360.98564736629*($jd-2451545.0)+0.000387933*$t2-$t3/38710000;
+$gmst0=100.46061837+36000.770053608*$t+0.000387933*$t2-$t3/38710000;
+$lmst=$gmst-$L_KSO;
+$L0 = 280.46645+36000.76983*$t+0.0003032*$t2;
+$M = 357.52910+35999.05030*$t-0.0001559*$t2-0.00000048*$t3;
+$Mr = $M/$radian;
+$C = (1.914600-0.004817*$t-0.000014*$t2)*sin($Mr)+(0.019993-0.000101*$t)*sin(2*$Mr)+0.000290*sin(3*$Mr);
+$sunL = $L0+$C;
+$v = $M+$C;
+$e=0.016708617-0.000042037*$t-0.0000001236*$t2;
+$dist=1.000001018*(1-$e*$e)/(1+$e*cos($v/$radian)); //distance in AE
+
+$omega = 125.04-1934.136*$t;
+$lngtd = $sunL-0.00569-0.00478*sin($omega/$radian);
+$lngtdr = $lngtd/$radian;
+$diffk = ($lngtdr-$k);			// both in radians
+$oblr = (23.4392911-0.0130042*$t-0.0000164*$t2+0.0000504*$t3)/$radian;
+$tx = - cos($lngtdr)*tan($oblr);
+$ty = - cos($diffk)*tan($inc);
+$x = atan($tx);
+$y = atan($ty);
+$Pr = ($x + $y);			//Postion angle
+$P = $Pr*$radian;
+$B0r =asin(sin($diffk)*sin($inc));		//central latitude
+
+$B0 = $B0r*$radian*-1;
+$etay = -sin($diffk)*cos($inc);
+$etax = -cos($diffk);
+$eta = (atan2($etay,$etax))*$radian;
+$L0 = $eta - $theta;				// Longitude of center of disk
+$L0 = truncate($L0);
+$L0r = $L0/$radian;
+$CarrNo = floor(($jd - 2398140.22710)/27.2752316);
+
+// Jetzt Bild laden
+
+$xs = 282 * cos(deg2rad(0)) * sin(deg2rad(-90));
+$dp=preg_split("/[.]+/", $this->cdate);
+if($this->input==5){
+    
+$img1="files/institute/sdoimg/".$dp[2].$dp[1].$dp[0]."_512.jpg"; //SDO-Bild
+} else {
+    
+	//$dp = explode(".",$this->cdate);
+	$img1="files/institute/draws/".$this[0]."_".$dp[2].$dp[1].$dp[0]."_".$ut."_512.jpg";
+	echo $img1."<br/>";
+}?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+     version="1.1" baseProfile="full"
+     width="600" height="660">
+
+<image id="sdoimg" x="0" y="20" width="600" height="600" xlink:href="<?php echo $img1 ?>" />
+<rect id="sdoi" width="550" height="550" x="25" y="45" style="fill:rgba(252,249,249,0.01);stroke-width:1;stroke:rgba(255,240,57,1.00)" />
+
+<?php //routine Extraktion BL und umrechnen auf hz-coord
+//zeichne ein Gradnetz
+
+$dist=$dist*1.01;
+
+for($bk=-90; $bk <=90; $bk=$bk+10){
+for($s=-90; $s <=90; $s=$s+10) {
+$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+
+if($s>-90  ){
+
+?>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<?php
+
+}
+$cx=$xs+300;
+$cy=$ys+320;
+}
+}
+
+for($s=-90; $s<=90; $s=$s+10) {
+for($bk=-90; $bk <=90; $bk=$bk+10){
+$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+
+if($s>=-90  ){
+	
+	?>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<?php
+
+}
+$cx=$xs+300;
+$cy=$ys+320;
+}
+}
+
+
+$i=0;
+while($nu[$i]<>NULL){
+
+if(substr($la[$i],0,1)=='N'){
+$br = intval(substr($la[$i],1,2))/$radian;
+$bb[$i]=$br*$radian;
+} else {
+$br = intval(substr($la[$i],1,2))*-1/$radian;
+$bb[$i]=$br*$radian;
+}
+if(substr($la[$i],3,1)=='W'){
+$lang = intval(substr($la[$i],4,2)+1)/$radian;
+$lan[$i]=$lang*$radian;
+} else {
+$lang = ((intval(substr($la[$i],4,2))*-1)+1)/$radian;
+$lan[$i]=$lang*$radian;
+}
+//$l=$la-$L0r;
+$l=$lang;
+$x0 = 300;
+$y0 = 320;
+$x1 = 282 * cos($br) * sin($l);
+
+$y1 = 282 * ((sin($br) * cos($B0r)) - (cos($br) * sin($B0r) * cos($l)));
+$x=$x0+$x1;
+$y=$y0-$y1;
+$y = $y>300 ? $y+30 : $y;
+
+//Ausdehnung:
+$lange=$aus[$i]/2; //halbe Ausdehnung
+$l1 = (intval(substr($la[$i],4,2))-$lange)/$radian; //diff zu zentrum
+$l2 = (intval(substr($la[$i],4,2))+$lange)/$radian;
+$lx1 = 282 * cos($br) * sin($l1); //umrechnen in pixel
+$lx2 = 282 * cos($br) * sin($l2);
+$ra=$lx2-$lx1; //diff in pixel
+
+if(substr($la[$i],5,1)!="*"){ //* Bezeichnungen nicht darstellen
+?>
+<text x="<?php echo $x?>" y="<?php echo $y-$ra?>" style="font-size:14px;font-family:Arial,Helvetica;" fill="blue" text-anchor="middle"><?php echo $nu[$i]?></text>
+
+<?php
+//echo "la=".$la." br=".$br."<br/>";
+}
+$i=$i+1;
+}
+?>
+
+<text x="592" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">W</text>
+<text x="10" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">E</text>
+<text x="300" y="30" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">N</text>
+<text x="300" y="615" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">S</text>
+
+</svg>
+
+
+<?php
+}
+endif; 
+
+function truncate($angle) {
+	$n = floor($angle/360);
+	$tangle = $angle-$n*360;
+	return $tangle;
+}
+?>
+<!-- SCRIPT-Part  -->
+<script language="javascript">
+    $( function() {
+    var zpd = ['Axi','Axx','Bxi','Bxo','Cri','Csi','Cai','Chi','Cki','Cro','Cso','Cao','Dri','Dro','Dsi','Dsc','Dso','Dai','Dac','Dao','Dhi','Dhc','Dki','Dkc','Eri','Esi','Esc','Eai','Eac','Ehi','Ehc','Eki','Ekc','Fri','Fsi','Fsc','Fai','Fac','Fhi','Fhc','Fki','Fkc','Cho','Cko','Dho','Dko','Ero','Eso','Eao','Eho','Eko','Fro','Fso','Fao','Fho','Fko','Hhx','Hhi','Hhc','Hkx','Hki','Hkc','Hrx','Hri','Hrc','Hsx','Hsi','Hsc','Hax','Hai','Hac'];
+	$("#zpd0").autocomplete({
+		source: zpd
+	});
+	$("#zpd1").autocomplete({
+		source: zpd
+	});
+	$("#zpd2").autocomplete({
+		source: zpd
+	});
+	$("#zpd3").autocomplete({
+		source: zpd
+	});
+	$("#zpd4").autocomplete({
+		source: zpd
+	});
+	$("#zpd5").autocomplete({
+		source: zpd
+	});
+	$("#zpd6").autocomplete({
+		source: zpd
+	});
+	$("#zpd7").autocomplete({
+		source: zpd
+	});
+	$("#zpd8").autocomplete({
+		source: zpd
+	});
+	$("#zpd9").autocomplete({
+		source: zpd
+	});
+	$("#zpd10").autocomplete({
+		source: zpd
+	});
+	$("#zpd11").autocomplete({
+		source: zpd
+	});
+	$("#zpd12").autocomplete({
+		source: zpd
+	});
+	$("#zpd13").autocomplete({
+		source: zpd
+	});
+	$("#zpd14").autocomplete({
+		source: zpd
+	});
+	$("#zpd15").autocomplete({
+		source: zpd
+	});
+	$("#zpd16").autocomplete({
+		source: zpd
+	});
+	$("#zpd17").autocomplete({
+		source: zpd
+	});
+	$("#zpd18").autocomplete({
+		source: zpd
+	});
+	$("#zpd19").autocomplete({
+		source: zpd
+	});
+	$("#zpd20").autocomplete({
+		source: zpd
+	});
+	$("#zpd21").autocomplete({
+		source: zpd
+	});
+	$("#zpd22").autocomplete({
+		source: zpd
+	});
+	$("#zpd23").autocomplete({
+		source: zpd
+	});
+	$("#zpd24").autocomplete({
+		source: zpd
+	});
+	$("#zpd25").autocomplete({
+		source: zpd
+	});
+	$("#zpd0").autocomplete({
+		source: zpd
+	});
+	$("#zpd26").autocomplete({
+		source: zpd
+	});
+	$("#zpd27").autocomplete({
+		source: zpd
+	});
+	$("#zpd28").autocomplete({
+		source: zpd
+	});
+	$("#zpd29").autocomplete({
+		source: zpd
+	});
+	$("#zpd30").autocomplete({
+		source: zpd
+	});
+	$("#zpd31").autocomplete({
+		source: zpd
+	});
+ });
+    
+    //Script part from template
+var pos = $("#sdoi").offset();
+	
+$( "[id^=pos]" ).click(function() {
+	var fid = this.id;
+	var id = fid.substr(fid.length - 1);
+  //alert( "Handler for .focus() called." + fid );
+
+
+$( "#sdoi" ).mousedown (function( event ) {
+    	<?php
+	echo "var b0='$B0';";
+	?>
+	var scrollTop = window.pageYOffset;
+  	var scrollLeft = window.pageXOffset;
+	var clientCoords = "( " + event.clientX + ", " + event.clientY + " )";
+	var leftAct = event.clientX - pos.left + scrollLeft -275;
+	var topAct = (event.clientY - pos.top + scrollTop - 275)*-1;
+	// Hilfsgrössen
+	if (Math.atan2(topAct, leftAct)<0) {
+		var phi = Math.atan2(topAct, leftAct) + 2*Math.PI;
+	} else {
+		var phi = Math.atan2(topAct, leftAct);
+	}
+
+	var x2plusy2 = (leftAct * leftAct) + (topAct * topAct);
+	var r = Math.sqrt(x2plusy2);
+	var sinRho = r / 275;
+	var cosRho = Math.cos(Math.asin(sinRho));
+	var sinB = (-1)*cosRho * Math.sin(deg2rad(b0)) + sinRho * Math.cos(deg2rad(b0)) * Math.sin(phi);
+	if(Math.asin(sinB)<0){
+		if(Math.round(Math.abs(rad2deg(Math.asin(sinB))))<10){
+			var lat = "S0" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		} else {
+		var lat = "S" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		}
+	} else {
+		if(Math.round(Math.abs(rad2deg(Math.asin(sinB))))<10){
+		var lat = "N0" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		} else {
+			var lat = "N" + Math.round(Math.abs(rad2deg(Math.asin(sinB))));
+		}
+	}
+	
+	var sinL = Math.cos(phi) * sinRho / Math.cos(Math.asin(sinB));
+		if(Math.asin(sinL)<0){
+			if(Math.round(Math.abs(rad2deg(Math.asin(sinL))))<10){
+				var long = "E0" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			} else {
+				var long = "E" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			}
+	
+		} else {
+			if(Math.round(Math.abs(rad2deg(Math.asin(sinL))))<10){
+				var long = "W0" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			} else {
+				var long = "W" + Math.round(Math.abs(rad2deg(Math.asin(sinL))));
+			}	
+		}
+	var se = sinRho * Math.PI;
+	
+	var se1 = Math.PI / 2;
+	var se2 = 3 * Math.PI / 4;
+	var se3 = 7 * Math.PI / 8;
+	
+switch (true) {
+	case (se < se1):
+		sec = 4;
+		break;	
+	case (se < se2): 
+		sec = 3;
+		break;
+	case (se < se3): 
+		sec = 2;
+		break;
+	case (se >= se3): 
+		sec = 1;
+		break;
+}
+	//alert( "do we have an fid? " + fid ) 
+	//if <10 > add 0
+	
+	$( "#sco" ).text( lat + long );
+	$( "#pos"+id ).val( lat + long );
+    $( "#pos"+id ).addClass( "valid" );
+	$( "#se"+id ).val( sec );
+    $( "#se"+id ).addClass( "valid" );
+	$( "#sco1" ).text( sec );
+	fid='';
+	id='';
+});
+	});
+function rad2deg(angle) {
+  return angle * 57.29577951308232;
+}
+function deg2rad(angle) {
+  return angle * (Math.PI / 180); 
+}
+        </script>
