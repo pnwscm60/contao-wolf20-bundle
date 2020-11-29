@@ -3,7 +3,7 @@
 
     <nav class="navbar navbar-expand-md navbar-dark bg-black py-3 sticky-top shadow-sm">
         <!--<div class="mx-auto d-sm-flex d-block flex-sm-nowrap">
-  <!--<a class="navbar-brand" href="#">Mega Dropdown</a>-->
+ <a class="navbar-brand" href="#">Mega Dropdown</a>-->
   <button class="navbar-toggler ml-auto custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon my-toggler"></span>
   </button>
