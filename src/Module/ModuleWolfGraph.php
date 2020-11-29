@@ -25,12 +25,22 @@ public function generate()
 	 */
 	protected function compile()
 	{
-		$sql="SELECT concat(wsb_y,'-',wsb_m,'-',wsb_d) as date,wsb_r as rz from tl_wsb;";
-$ds=mysql_query($sql) or die(mysql_error());
-for ($x = 0; $x < 10000; $x++) {
-        $data[] = mysql_fetch_assoc($ds);
-    }
+    //DB
+    $db = \Contao\System::getContainer()->get('database_connection');
+	$sql="SELECT concat(wsb_y,'-',wsb_m,'-',wsb_d) as date,wsb_r as rz from tl_wsb;";
+        $dsd = $db->executeQuery($sql, array($userid))->fetchAll();
+        foreach($dsd as $ds) {
+            $dat = explode("-",$ds['date']);
+            $data[] = array(
+                'date' => $ds['date'],
+                'rz' => $ds['rz']
+            );
+        }
+//for ($x = 0; $x < 10000; $x++) {
+  //      $data[] = mysql_fetch_assoc($ds);
+    //}
 $wdaten = json_encode($data);
+//var_dump($wdaten);
 $this->Template->wolfgraph = $wdaten;
 	}
 }
