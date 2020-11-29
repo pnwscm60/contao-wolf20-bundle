@@ -1,33 +1,29 @@
-<?php ?>
-<div class="<?= $this->class ?>  tableless login block"<?= $this->cssID ?><?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
-
-<?php if ($this->headline): ?>
-    <<?= $this->hl ?>><?= $this->headline ?></<?= $this->hl ?>>
-<?php endif; ?>
-
-
-<?php
-	
-// Daten Lokalisation Sonnenfleckengruppen holen
+<h1>Solar Dynamics Observatory SDO</h1>
+<?	
+// Datum angefragt > Daten Lokalisation Sonnenfleckengruppen holen
 // Daten stammen aus dobs
-$sql="SELECT * from tl_dobs WHERE d_time='".$this->y."-".$this->mo."-".$this->d." 00:00:00' ORDER by d_num;";
+
+//$sql="SELECT * from tl_dobs WHERE d_time='".$this->y."-".$this->mo."-".$this->d." 00:00:00' ORDER by d_num;";
 //echo $sql;
-$ele=array();
-$dosql=mysql_query($sql) or die("Fehler:".mysql_error());
+//$ele=array();
+//$dosql=mysql_query($sql) or die("Fehler:".mysql_error());
 $i=0;
-while($x=mysql_fetch_row($dosql)){
-	$nu[$i] = $x[3];
-	$la[$i] = $x[4];
-	$lo[$i] = $x[5];
-	$ar[$i] = $x[6];
-	$aus[$i] = $x[7];
-	$zpd[$i] = $x[8];
-	$ct[$i] = $x[9];
-	$mag[$i] = $x[10];
+//while($x=mysql_fetch_row($dosql)){
+if($this->dobs): foreach($this->dobs as $x):
+	$nu[$i] = $x['d_num'];
+	$la[$i] = $x['d_loc'];
+	$lo[$i] = $x['d_lon'];
+	$ar[$i] = $x['d_area'];
+	$aus[$i] = $x['d_ext'];
+	$zpd[$i] = $x['d_scl'];
+	$ct[$i] = $x['d_count'];
+	$mag[$i] = $x['d_mag'];
 	$flag[$i]=1;
-	$this->Template->$ele[$i]=$x;
+
 $i=$i+1;
-}
+//}
+
+endforeach; endif;
 
 // Neues Skript adaptiert aus Kanzelhöhe jscript
 $radian = 180/3.1415926;
@@ -88,16 +84,18 @@ $eta = (atan2($etay,$etax))*$radian;
 $L0 = $eta - $theta;				// Longitude of center of disk
 $L0 = truncate($L0);
 $L0r = $L0/$radian;
-$CarrNo = floor(($jd - 2398140.22710)/27.2752316);
-
-	
-
+$CarrNo = floor(($jd - 2398140.22710)/27.2752316);	
+?>
+<div class="ce_bs_gridStart row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+<?
 //echo $ho.":".$mii;
 $i=0;
-	echo "<div style='font-family:Courier new, monospace; line-height:0.95em;font-size:0.84em;'>Summary of Space Weather Observations issued: ".$this->dat[2]."/".$this->dat[1]."/".$this->idat[0]." 0030 UTC<br/>";
+	echo "<div style='margin-top:19px;font-family:Courier new, monospace; line-height:0.91em;font-size:0.75em;'>Summary of Space Weather Observations issued: ".$this->dat[2]."/".$this->dat[1]."/".$this->idat[0]." 0030 UTC<br/>";
 	echo "Sunspot Locations valid at ".$this->dat[1]."/".$this->dat[0]." 0000 UTC<br/>";
 	echo "Prepared by the US Dept. of Commerce, NOAA, Space Weather Prediction Center</div>";
 	?>
+    <div class="flex" style="margin-top:0.6em;">
     <div class="dobs" style="clear:left;"><br/>Num</div>
     <div class="dobs"><br/>Loc</div>
     <div class="dobs"><br/>Long</div>
@@ -106,24 +104,25 @@ $i=0;
     <div class="dobs">Spot Class</div>
     <div class="dobs">Spot count</div>
     <div class="dobs">Mag Class</div>
+</div>
     <?php
 
-while ($nu[$i]!="") {
+foreach($this->dobs as $do):
 	?>
-    <div class="dob" style="clear:left;"><?php echo $nu[$i]?></div>
-    <div class="dob"><?php echo $la[$i]?></div>
-    <div class="dob"><?php echo $lo[$i]?></div>
-    <div class="dob"><?php echo $ar[$i]?></div>
-    <div class="dob"><?php echo $aus[$i]?></div>
-    <div class="dob"><?php echo $zpd[$i]?></div>
-    <div class="dob"><?php echo $ct[$i]?></div>
-    <div class="dob"><?php echo $mag[$i]?></div>
-   
+<div class="flex">
+    <div class="dob" style="clear:left;"><?php echo $do['d_num']?></div>
+    <div class="dob"><?php echo $do['d_loc']?></div>
+    <div class="dob"><?php echo $do['d_lon']?></div>
+    <div class="dob"><?php echo $do['d_area']?></div>
+    <div class="dob"><?php echo $do['d_ext']?></div>
+    <div class="dob"><?php echo $do['d_scl']?></div>
+    <div class="dob"><?php echo $do['d_count']?></div>
+    <div class="dob"><?php echo $do['d_mag']?></div>
+</div>
     <?php
-	$i= $i+1;
-}
+endforeach;
 
-echo "<div style='clear:both;'>&nbsp;</div>";
+//echo "<div style='clear:both;'>&nbsp;</div>";
 
 ?>
 
@@ -152,11 +151,25 @@ echo "<a href='files/institute/grey.php?res=512&im=http://jsoc.stanford.edu/data
 
 <form name="choose" action="sdo.html" method="post">
 <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
-<div style="margin-top:1em;"><div style="float:left;">Choose another date: </div><div style="margin-left:0.5em;float:left;"><span class="hint--top" data-hint="dd.mm.yyyy"><input type="text" name="newdate" id="newdate" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy" data-validation-error-msg="invalid date" id="date" name="datedef" value="<?php echo $this->datum?>"></span> <span style="padding:0 5px 0 5px;">and time (UT): </span> </div><div style="float:left;"><input type="time" name="time" value="<?php echo $this->hour?>:<?php echo $minn?>" size="8"></div><div style="float:left;"><input type="submit" value="go"></div></div>
+<div style="margin-top:1em;" class="flex">
+    <div style="margin-top:12px;margin-right:5px;">Choose another date: </div>
+    <div class="form-group" style="">
+        <span class="hint--top" data-hint="dd.mm.yyyy">
+            <input class="form-control" type="text" name="newdate" id="newdate" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy" data-validation-error-msg="invalid date" id="date" name="datedef" value="<?php echo $this->datum?>">
+        </span></div>
+    <div style="margin:12px 5px 0 1em;">and time (UT): </div> 
+    <div class="form-group" style="">
+        <span class="hint--top" data-hint="hh:mm">
+            <input class="form-control" type="time" name="time" value="<?php echo $this->hour?>:<?php echo $minn?>" size="8">
+        </span></div>
+    <div style="margin-top:6px;margin-left:1em;"><button class="btn btn-primary" type="submit" value="go">go</button></div></div>
 </form>
+
+</div>
+<div class="ce_bs-gridSeparator col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">        
 <?php
 
-$xs = 282 * cos(deg2rad(0)) * sin(deg2rad(-90));
+$xs = 250 * cos(deg2rad(0)) * sin(deg2rad(-90));
 $img1="http://jsoc.stanford.edu/data/hmi/images/".$this->dat[2]."/".$this->dat[1]."/".$this->idat[0]."/".$this->dat[2].$this->dat[1].$this->idat[0]."_".$this->hour.$minut."00_Ic_flat_1k.jpg";
 //echo $img1;
 ?>
@@ -164,9 +177,9 @@ $img1="http://jsoc.stanford.edu/data/hmi/images/".$this->dat[2]."/".$this->dat[1
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
      version="1.1" baseProfile="full"
-     width="600" height="660">
+     width="524" height="534">
 
-<image x="0" y="20" width="600" height="600" xlink:href="<?php echo $img1 ?>" />
+<image x="0" y="20" width="490" height="490" xlink:href="<?php echo $img1 ?>" />
 <!-- <rect x="18" y="38" width="564" height="564" fill="none" stroke="blue" stroke-width="1"/> -->
 
 <?php //routine Extraktion BL und umrechnen auf hz-coord
@@ -175,65 +188,67 @@ $dist=$dist*1.01;
 
 for($bk=-90; $bk <=90; $bk=$bk+10){
 for($s=-90; $s <=90; $s=$s+10) {
-$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
-$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+$xs = 1/$dist * 230 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 230 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
 
 if($s>-90){
 ?>
-<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+245?>" y2="<?php echo $ys+266?>" style="stroke:white;stroke-width:0.5"/>
 <?php
 }
-$cx=$xs+300;
-$cy=$ys+320;
+$cx=$xs+245;
+$cy=$ys+266;
 }
 }
 
 for($s=-90; $s<=90; $s=$s+10) {
 for($bk=-90; $bk <=90; $bk=$bk+10){
-$xs = 1/$dist * 282 * cos(deg2rad($bk)) * sin(deg2rad($s));
-$ys = 1/$dist * 282 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
+$xs = 1/$dist * 230 * cos(deg2rad($bk)) * sin(deg2rad($s));
+$ys = 1/$dist * 230 * ((sin(deg2rad($bk)) * cos(deg2rad($B0))) - (cos(deg2rad($bk)) * sin(deg2rad($B0)) * cos(deg2rad($s))));
 
 if($s>=-90  ){
 	?>
-<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+300?>" y2="<?php echo $ys+320?>" style="stroke:white;stroke-width:0.5"/>
+<line x1="<?php echo $cx?>" y1="<?php echo $cy?>" x2="<?php echo $xs+245?>" y2="<?php echo $ys+266?>" style="stroke:white;stroke-width:0.5"/>
 <?php
 }
-$cx=$xs+300;
-$cy=$ys+320;
+$cx=$xs+245;
+$cy=$ys+266;
 }
 }
 
 
 
-
+//Daten aus dobs
 
 $i=0;
-while($nu[$i]<>NULL){
+foreach($this->dobs as $dbs){
+//while($dbs['d_num']<>NULL){
 
-if(substr($la[$i],0,1)=='N'){
-$br = intval(substr($la[$i],1,2))/$radian;
+if(substr($dbs['d_loc'],0,1)=='N'){
+$br = intval(substr($dbs['d_loc'],1,2))/$radian;
 $bb[$i]=$br*$radian;
 } else {
-$br = intval(substr($la[$i],1,2))*-1/$radian;
+$br = intval(substr($dbs['d_loc'],1,2))*-1/$radian;
 $bb[$i]=$br*$radian;
 }
-if(substr($la[$i],3,1)=='W'){
-$lang = intval(substr($la[$i],4,2)+1)/$radian;
+	
+if(substr($dbs['d_loc'],3,1)=='W'){
+$lang = intval(substr($dbs['d_loc'],4,2)+1)/$radian;
 $lan[$i]=$lang*$radian;
 } else {
-$lang = ((intval(substr($la[$i],4,2))*-1)+1)/$radian;
+$lang = ((intval(substr($dbs['d_loc'],4,2))*-1)+1)/$radian;
 $lan[$i]=$lang*$radian;
 }
 //$l=$la-$L0r;
 $l=$lang;
-$x0 = 300;
-$y0 = 320;
-$x1 = 282 * cos($br) * sin($l);
+$x0 = 245;
+$y0 = MHASH_SHA256;
+$x1 = 230 * cos($br) * sin($l);
 
-$y1 = 282 * ((sin($br) * cos($B0r)) - (cos($br) * sin($B0r) * cos($l)));
+$y1 = 230 * ((sin($br) * cos($B0r)) - (cos($br) * sin($B0r) * cos($l)));
 $x=$x0+$x1;
 $y=$y0-$y1;
-$y = $y>300 ? $y+30 : $y;
+$y = $y>266 ? $y+30 : $y;
 
 
 
@@ -241,15 +256,15 @@ $y = $y>300 ? $y+30 : $y;
 
 //Ausdehnung:
 $lange=$aus[$i]/2; //halbe Ausdehnung
-$l1 = (intval(substr($la[$i],4,2))-$lange)/$radian; //diff zu zentrum
-$l2 = (intval(substr($la[$i],4,2))+$lange)/$radian;
-$lx1 = 282 * cos($br) * sin($l1); //umrechnen in pixel
-$lx2 = 282 * cos($br) * sin($l2);
+$l1 = (intval(substr($dbs['d_loc'],4,2))-$lange)/$radian; //diff zu zentrum
+$l2 = (intval(substr($dbs['d_loc'],4,2))+$lange)/$radian;
+$lx1 = 230 * cos($br) * sin($l1); //umrechnen in pixel
+$lx2 = 230 * cos($br) * sin($l2);
 $ra=$lx2-$lx1; //diff in pixel
 
-if(substr($la[$i],5,1)!="*"){ //* Bezeichnungen nicht darsellen
+if(substr($dbs['d_loc'],5,1)!="*"){ //* Bezeichnungen nicht darstellen
 ?>
-<text x="<?php echo $x?>" y="<?php echo $y-$ra?>" style="font-size:14px;font-family:Arial,Helvetica;" fill="blue" text-anchor="middle"><?php echo $nu[$i]?></text>
+<text x="<?php echo $x?>" y="<?php echo $y+200?>" style="font-size:14px;font-family:Arial,Helvetica;" fill="blue" text-anchor="middle"><?php echo $dbs['d_num']?></text>
 
 <?php
 //echo "la=".$la." br=".$br."<br/>";
@@ -258,14 +273,15 @@ $i=$i+1;
 }
 ?>
 
-<text x="592" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">W</text>
-<text x="10" y="324" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">E</text>
-<text x="300" y="30" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">N</text>
-<text x="300" y="615" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">S</text>
+<text x="480" y="260" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">W</text>
+<text x="10" y="260" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">E</text>
+<text x="245" y="30" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">N</text>
+<text x="245" y="506" style="font-size:10px;font-family:Arial,Helvetica;" fill="white" text-anchor="middle">S</text>
 </svg>
 <?php
 //echo intval(substr($la[$i][2],4,2));
 //echo " ".$la[2];
 ?>
+</div>
 </div>
 </div>
