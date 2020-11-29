@@ -1,24 +1,26 @@
-<?php ?>
-<div class="<?= $this->class ?>  tableless login block"<?= $this->cssID ?><?php if ($this->style): ?> style="<?= $this->style ?>"<?php endif; ?>>
-
-<?php if ($this->headline): ?>
-    <<?= $this->hl ?>><?= $this->headline ?></<?= $this->hl ?>>
-<?php endif; ?>
+<h1>Review Data</h1>
 
 <?php
 // Im Objekt-Kontext
 //showresults = Dateien zum editieren anzeigen, sonst Eingabemaske
-if($this->showresults==1){
-	
+if($this->showresults==1):?>
+<?
 //intval10 und intval12 berechnen
 	$intvl11 = explode('-',$this->intvl1);
 	$intvl1b = $intvl11[2].".".$intvl11[1].".".$intvl11[0];
 	$intvl22 = explode('-',$this->intvl2);
-	$intvl2b = $intvl22[2].".".$intvl22[1].".".$intvl22[0];
+	$intvl2b = $intvl22[2].".".$intvl22[1].".".$intvl22[0];?>
 	
-echo "<p>Observer / Instrument:<br/>";
-echo $this->observer;
-	echo $this->instrument;?></p>
+    <? echo $showresults;?>
+    
+    <div style='clear:left;'>Observer: 
+    [<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)</div>
+    <div class="flex"><div class="form-group">
+    <label for="code">Instrument</label>
+    <input type="text" class="text form-control w300" value="
+        <? echo $this->instcode?>|<?php echo $this->i_type.' '.$this->i_aperture.'/'.$this->i_focal_length.' '.$this->i_filter.' Mag. '.$this->i_magnification?>
+    " id="code" name="code" readonly>
+        </div><div ><a href="review.html" class="btn btn-primary" style="margin-left:1em;margin-top:30px;height:34px;">New request</a></div></div>
 	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
 	
 <?php
@@ -27,25 +29,27 @@ $to = explode("-",$this->intvl2);?>
 
 <p>You requested data from <?php echo $fr[2].'.'.$fr[1].'.'.$fr[0].' to '.$to[2].'.'.$to[1].'.'.$to[0].':</p>';
 //ab hier switch: Wenn beo[9]=1 > daily / wenn beo[9]=2 > group
-if($this->inputpref==1||$this->inputpref==2){ 
+if($this->i_inputpref==1||$this->i_inputpref==2){ 
 	
-		$sql='SELECT * from tl_data WHERE d_datum >= "'.$this->intvl1.'" AND d_datum <= "'.$this->intvl2.'" AND d_code='.$this->instcode.' ORDER by d_datum ';
+		//$sql='SELECT * from tl_data WHERE d_datum >= "'.$this->intvl1.'" AND d_datum <= "'.$this->intvl2.'" AND d_code='.$this->instcode.' ORDER by d_datum ';
 	//echo $sql;
-	$dosql=mysql_query($sql) or die(mysql_error());
+	//$dosql=mysql_query($sql) or die(mysql_error());
 ?> 
 <!-- ************************
   Daily Input
  ****************************-->
+<? $k=0?>
 <h3 style="margin-top:0;">Daily data</h3>
-<div style="width:100%;clear:both;margin-bottom:0.7em;"><a href="review.html?fr=<?php echo $intvl1b?>&to=<?php echo $intvl2b?>&ins=<?php echo $this->instcode?>&typ=0&rdl=1">Download as MS-Excel-File</a></div>
+<div style="width:100%;clear:both;margin-bottom:0.7em;"><a href="review.html?fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&ins=<?php echo $this->instcode?>&typ=0&rdl=1" class="btn btn-primary">Download as csv-file</a></div>
 <div style="font-family:'museo-sans-condensed';width:720px;clear:both;margin-bottom:1.5em;">
-<div class="boo" style="width:4.3em;clear:left;">Date</div>
+    <div class="flex">
+<div class="boo erstcol" style="width:5em;clear:left;">Date</div>
 <div class="bo" style="width:2.5em;">UT</div>
 <div class="bo">Q</div>
 <div class="bo">g</div>
 <div class="bo" 
 <?php 
-if($this->inputpref==2){ // mit Waldmeier
+if($this->i_inputpref==2){ // mit Waldmeier
 ?>
 >f</div>
 <div class="bo">A</div>
@@ -60,42 +64,52 @@ if($this->inputpref==2){ // mit Waldmeier
 <?php
 } else { 
 	echo ' style="clear:right;">f</div>';
- }
-while($d = mysql_fetch_row($dosql)){
-	$dd = explode("-",$d[4]);?>
-
-<div class="buu" style="width:4.3em;clear:left;"><?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?></div>
-<div class="bu" style="width:2.5em;"><?php echo $d[5]?></div>
-<div class="bu"><?php echo $d[6]?></div>
-<div class="bu"><?php echo $d[7]?></div>
+ }?>
+    </div>
+<? foreach($this->ddata as $d):
+	$dd = explode("-",$d['d_datum']);?>
+<div class="flex">
+<div class="buu erstcol" style="width:5em;clear:left;"><?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?></div>
+<div class="bu" style="width:2.5em;"><?php echo $d['d_ut']?></div>
+<div class="bu"><?php echo $d['d_q']?></div>
+<div class="bu"><?php echo $d['d_gruppen']?></div>
 <div class="bu" 
-<?php if($this->inputpref==2){ ?>
-><?php echo $d[8]?></div>
-<div class="bu"><?php echo $d[9]?></div>
-<div class="bu"><?php echo $d[10]?></div>
-<div class="bu"><?php echo $d[11]?></div>
-<div class="bu"><?php echo $d[12]?></div>
-<div class="bu"><?php echo $d[13]?></div>
-<div class="bu"><?php echo $d[14]?></div>
-<div class="bu"><?php echo $d[15]?></div>
-<div class="bu"><?php echo $d[16]?></div>
-<div class="bu" style="clear:right;"><?php echo $d[17]?></div>
+<?php if($this->i_inputpref==2){ ?>
+><?php echo $d['d_flecken']?></div>
+<div class="bu"><?php echo $d['d_A']?></div>
+<div class="bu"><?php echo $d['d_B']?></div>
+<div class="bu"><?php echo $d['d_C']?></div>
+<div class="bu"><?php echo $d['d_D']?></div>
+<div class="bu"><?php echo $d['d_E']?></div>
+<div class="bu"><?php echo $d['d_F']?></div>
+<div class="bu"><?php echo $d['d_G']?></div>
+<div class="bu"><?php echo $d['d_H']?></div>
+<div class="bu" style="clear:right;"><?php echo $d['d_J']?></div>
 <?php } else { ?>
-	  style="clear:right;" ><?php echo $d[8]?></div>
-<?php }
-if(date("j")>10){
+	  style="clear:right;" ><?php echo $d['d_flecken']?></div>
+<?php }?>
+
+<? if(date("j")>10){
 	$tlim = $this->tlim2;	
 } else {
 	$tlim = $this->tlim;
 }
-	if($d[4]>=$tlim):?>
-		<div style="float:left;width:2em;"><button type="button" class="delete" onclick="if(confirm('Delete this entry from <?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?>, <?php echo $d[5]?> UT?')) { window.location.href='review.html?del=1&id=<?php echo $d[0]?>&inst=<?php echo $this->instcode?>&deldate=<?php echo $d[4]?>&delut=<?php echo $d[5]?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=0&showresults=1';}" style="width:20px; height:20px;margin-top:3px;"><img src="system/modules/wolf/assets/delete.png" width="12" height="12"></button></div>
+	if($d['d_datum']>=$tlim):?>
+    <button class="btno deldly btn-primary" id="del<? echo $k?>"  style="width:30px;height:30px;margin-left:5px;" type="button" data-href='review.html?del=1&id=<?php echo $d['d_id']?>&inst=<?php echo $this->instcode?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=0&showresults=1'>
+        <svg class="bi" width="30" height="30" fill="default" style="margin-top:-10px;margin-left:-8px;color:#c03">
+  <use xlink:href="files/icons/bootstrap-icons.svg#x"/>
+</svg></button>
+<?$k++;?>
+	<!--	<div style="height:29px;"><button type="button" class="btno btn-primary" style="height:28px;width:29px;margin-left:5px;" onclick="if(confirm('Delete this entry from <?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?>, <?php echo $d[5]?> UT?')) { window.location.href='review.html?del=1&id=<?php echo $d[0]?>&inst=<?php echo $this->instcode?>&deldate=<?php echo $d[4]?>&delut=<?php echo $d[5]?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=0&showresults=1';}">
+<svg class="bi" width="29" height="29" fill="default" style="margin-top:-10px;margin-left:-8px;color:#c03">
+  <use xlink:href="files/icons/bootstrap-icons.svg#x"/>
+</svg></button></div>-->
+            <?//<img src="/files/icons/x-square.svg" alt="" width="20" height="20" title="delete">?>
 		<?php else: ?>
 		<div style="float:left;width:2em;">&nbsp;</div>	
-	<?php endif; 	
-	}
-
-?>
+	<?php endif; ?>
+</div>
+<?	endforeach;?>
 </div>
 
 <?php
@@ -103,18 +117,19 @@ if(date("j")>10){
 // *******************
 // GROUP ENTRY
 // *******************
- elseif($this->inputpref==3||$this->inputpref==4||$this->inputpref==5||$this->inputpref==6){
-	$sql='SELECT * from tl_groupdata WHERE g_datum >= "'.$this->intvl1.'" AND g_datum <= "'.$this->intvl2.'" AND g_code='.$this->instcode.' ORDER by g_datum,g_ut,g_nr ';
-	$dosql=mysql_query($sql) or die(mysql_error());
+ elseif($this->i_inputpref==3||$this->i_inputpref==4||$this->i_inputpref==5||$this->i_inputpref==6){
+	//$sql='SELECT * from tl_groupdata WHERE g_datum >= "'.$this->intvl1.'" AND g_datum <= "'.$this->intvl2.'" AND g_code='.$this->instcode.' ORDER by g_datum,g_ut,g_nr ';
+	//$dosql=mysql_query($sql) or die(mysql_error());
 ?>
+<? $l=0;?>
+<div class="flex"><h3 style="width:425px;margin-top:0;">Group data</h3><h3 style="float:left;clear:right;width:380px;margin-top:0;">Daily data</h3></div>
+<div style="clear:both;width:800px;height:3px;margin:0;padding:0;">&nbsp;</div>
+<div style="margin-bottom:0.7em;float:left;width:425px;"><a href="review.html?fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&ins=<?php echo $this->instcode?>&typ=1&rdl=1" class="btn btn-primary">Download as csv-file</a></div>
+<div style="margin-bottom:0.7em;float:left;width:366px;"><a href="review.html?fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&ins=<?php echo $this->instcode?>&typ=0&rdl=1" class="btn btn-primary">Download as csv-file</a></div>
 
-<div><h3 style="float:left;width:356px;margin-right:45px;margin-top:0;">Group data</h3><h3 style="float:left;clear:right;width:15em;margin-top:0;">Daily data</h3></div>
-	<div style="clear:both;width:800px;height:3px;margin:0;padding:0;">&nbsp;</div>
-<div style="margin-bottom:0.7em;float:left;width:356px;;margin-right:45px;"><a href="review.html?fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&ins=<?php echo $this->instcode?>&typ=1&rdl=1">Download as MS-Excel-File</a></div>
-<div style="margin-bottom:0.7em;float:left;width:15em;"><a href="review.html?fr=<?php echo $this->intvl1?>&to=<?php echo $this->intvl2?>&ins=<?php echo $this->instcode?>&typ=0&rdl=1">Download as MS-Excel-File</a></div>
-
-<div style="font-family:'museo-sans-condensed';width:820px;clear:both;margin-bottom:1.5em;">
-<div class="boo" style="width:4.3em;">Date</div>
+<div class="flex fo1" style="width:820px;clear:both;margin-bottom:1em;">
+<div class="flex" style="width:425px;">
+<div class="boo erstcol" style="width:5em;">Date</div>
 <div class="bo" style="width:2.5em;">UT</div>
 <div class="bo">Q</div>
 <div class="bo">gnr</div>
@@ -123,168 +138,165 @@ if(date("j")>10){
 <div class="bo">p</div>
 <div class="bo">s</div>
 
-<?php if($this->inputpref==5||$this->inputpref==6){ ?>
+<?php if($this->i_inputpref==5||$this->i_inputpref==6){ ?>
 <div class="bo" style="width:3.7em;">pos</div>
 <div class="bo" style="margin-right:28px;">sec</div>
 
 <?php } else {?>
 <div class="bo">sec</div>
-<div class="bo" style="margin-right:32px;">A</div>
+<div class="bo" style="margin-right:1px;">A</div>
 <?php } ?>
-<div class = "boo1" 
-<?php if ($this->inputpref!=5||$this->inputpref!=6){ echo 'style="margin-left:30px;"'; } ?>
+</div>
+<div class="flex">
+<div class = "boo erstcol" 
+<?php if ($this->i_inputpref!=5||$this->i_inputpref!=6){ echo ''; } ?>
 >g</div>
-		<div class="bo1">f</div>
-		<div class="bo1">A</div>
-		<div class="bo1">B</div>
-		<div class="bo1">C</div>
-		<div class="bo1">D</div>
-		<div class="bo1">E</div>
-		<div class="bo1">F</div>
-		<div class="bo1">G</div>
-		<div class="bo1">H</div>
-		<div class="bo1">J</div>
+		<div class="bo">f</div>
+		<div class="bo">A</div>
+		<div class="bo">B</div>
+		<div class="bo">C</div>
+		<div class="bo">D</div>
+		<div class="bo">E</div>
+		<div class="bo">F</div>
+		<div class="bo">G</div>
+		<div class="bo">H</div>
+		<div class="bo">J</div>
+</div>
 </div>
 <?php
-while($z = mysql_fetch_row($dosql)){
-	
-	if($gldat!=$z[4] || $gltime!=$z[5]){ //neue Titelzeile
-		// Summationsdaten holen aus data
-		$sql2='SELECT * from tl_data WHERE d_datum = "'.$z[4].'" AND d_ut = "'.$z[5].'" AND d_code='.$this->instcode.';';
-		$dosql2=mysql_query($sql2) or die(mysql_error());
-		$zd=mysql_fetch_row($dosql2);
-		$dd = explode("-",$z[4]);?>
-	<div style="width:720px;clear:both;height:0.3em">&nbsp;</div>
-		<div style="width:720px;clear:both;margin-bottom:1.5em;">
-		<div class="boo" style="width:4.3em;"><?php echo $dd[2].'.'.$dd[1].'.'.$dd[0]?></div>
-		<div class="bo" style="width:2.5em;"><?php echo $z[5]?></div>
-		<div class="bo"><?php echo $z[6]?></div>
-		<div class="bo"><?php echo $z[7]?></div>
-		<div class="bo"><?php echo $z[8]?></div>
-		<div class="bo"><?php echo $z[9]?></div>
-		<div class="bo"><?php echo $z[10]?></div>
-		<div class="bo"><?php echo $z[11]?></div>
+foreach($this->gdata as $z):
+        if($z['g_datum']==$olddat){$samerow=1;}else{$samerow=0;}
+		$dd = explode("-",$z['g_datum']);?>
+        <? $olddat = $z['g_datum'];?>
+	<div style="width:820px;clear:both;height:<? echo $samerow!=1 ? '0.6em' : '0'?>">&nbsp;</div>
+		<div class="flex" style="width:820px;">
+		<div class="flex" style="width:425px;">
+        <div class="<? echo $samerow!=1 ? 'boo' : 'buu'?> erstcol" style="width:5em;"><?php if($samerow!=1){echo $dd[2].'.'.$dd[1].'.'.$dd[0];}?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>" style="width:2.5em;"><?php echo $z['g_ut']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_q']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_nr']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_f']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_Zpd']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_p']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_s']?></div>
 		
 	<?php if($this->inputpref==5||$this->inputpref==6){ ?>
-		<div class="bo" style="width:3.7em;"><?php echo $z[14]?></div>
-		<div class="bo"><?php echo $z[12]?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>" style="width:3.7em;"><?php echo $z['g_pos']?></div>
+		<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_sector']?></div>
 	<?php } else { ?>
-	<div class="bo"><?php echo $z[12]?></div>
-	<div class="bo"><?php echo $z[13]?></div>
+	<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['g_sector']?></div>
+	<div class="<? echo $samerow!=1 ? 'bo' : 'bu'?>"><?php echo $z['A']?></div>
 		
 	<?php } ?>
+            
 		<?php //Löschroutine nur einblenden, wenn nicht zu alt
 		if(date("j")>10){
 	$tlim = $this->tlim2;	
 } else {
 	$tlim = $this->tlim;
 }
-if($z[4]>=$tlim || $z[4]<=$this->tlim3){ ?>
+if(($z['g_datum']>=$tlim || $z['g_datum']<=$this->tlim3) && $samerow!=1){ ?>
 	
-		<div style="float:left;width:2em;"><button type="button" class="delete" onclick="if(confirm('Delete this entry from <?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?>, <?php echo $z[5]?> UT?')) { window.location.href='review.html?del=1&id=<?php echo $z[0]?>&inst=<?php echo $this->instcode?>&deldate=<?php echo $z[4]?>&delut=<?php echo $z[5]?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=1&showresults=1';}" style="width:20px; height:20px;margin-top:3px;"><img src="system/modules/wolf/assets/delete.png" width="12" height="12"></button></div>
-		<?php } else { ?>
+		 <!--<div style="float:left;width:2em;"><button type="button" class="btno btn-primary" style="height:28px;width:29px;margin-left:5px;"  onclick="if(confirm('Delete this entry from <?php echo $dd[2]?>.<?php echo $dd[1]?>.<?php echo $dd[0]?>, <?php echo $z[5]?> UT?')) { window.location.href='review.html?del=1&id=<?php echo $z[0]?>&inst=<?php echo $this->instcode?>&deldate=<?php echo $z[4]?>&delut=<?php echo $z[5]?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=1&showresults=1';}" style="width:20px; height:20px;margin-top:3px;"> -->
+            <? //<img src="system/modules/wolf/assets/delete.png" width="12" height="12"></button></div>?>
+	<button class="btno delgrp btn-primary" id="delgrp<? echo $l?>" style="width:30px;height:30px;margin-left:5px;" type="button" data-href='review.html?del=1&id=<?php echo $z['id']?>&inst=<?php echo $this->instcode?>&deldate=<?php echo $z['g_datum']?>&datefr=<?php echo $intvl1b?>&dateto=<?php echo $intvl2b?>&typ=1&showresults=1'>
+        <svg class="bi" width="30" height="30" fill="default" style="margin-top:-10px;margin-left:-8px;color:#c03">
+  <use xlink:href="files/icons/bootstrap-icons.svg#x"/>
+</svg></button>
+            <?$l++;?>
+            <?php } else { ?>
 		<div style="float:left;width:2em;">&nbsp;</div>
 		<?php } ?>
-		
-		<div class = "boo1"
-		<?php if ($this->inputpref!=5||$this->inputpref!=6){ echo 'style="margin-left:30px;"'; 
-		} else {
-			echo 'style="margin-left:0px;"';
-		} ?>
-		><span class="hint--top" data-hint="g"><?php echo $zd[7]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="Sum f"><?php echo $zd[8]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="A"><?php echo $zd[9]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="B"><?php echo $zd[10]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="C"><?php echo $zd[11]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="D"><?php echo $zd[12]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="E"><?php echo $zd[13]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="F"><?php echo $zd[14]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="G"><?php echo $zd[15]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="H"><?php echo $zd[16]?></span></div>
-		<div class="bo1"><span class="hint--top" data-hint="J"><?php echo $zd[17]?></span></div>
+		</div>
+        <?php if($samerow!=1):?>
+        <div class="flex" style="width:380px;">    
+		<div class = "boo erstcol"><?php echo $z['d_gruppen']?></div>
+		<div class="bo"><?php echo $z['d_flecken']?></div>
+		<div class="bo"><?php echo $z['d_A']?></div>
+		<div class="bo"><?php echo $z['d_B']?></div>
+		<div class="bo"><?php echo $z['d_C']?></div>
+		<div class="bo"><?php echo $z['d_D']?></div>
+		<div class="bo"><?php echo $z['d_E']?></div>
+		<div class="bo"><?php echo $z['d_F']?></div>
+		<div class="bo"><?php echo $z['d_G']?></div>
+		<div class="bo"><?php echo $z['d_H']?></div>
+		<div class="bo"><?php echo $z['d_J']?></div>
 </div>
-	<?php } else { ?>
-		<div style="width:720px;clear:both;margin-bottom:1.5em;">
-		<div class="buu" style="width:4.3em;">&nbsp;</div>
-		<div class="bu" style="width:2.5em;">&nbsp;</div>
-		<div class="bu">&nbsp;</div>
-		<div class="bu"><?php echo $z[7]?></div>
-		<div class="bu"><?php echo $z[8]?></div>
-		<div class="bu"><?php echo $z[9]?></div>
-		<div class="bu"><?php echo $z[10]?></div>
-		<div class="bu"><?php echo $z[11]?></div>
-	<?php if($this->inputpref==5||$this->inputpref==5){ ?>
-		<div class="bu" style="width:3.7em;"><?php echo $z[14]?></div>
-		<div class="bu"><?php echo $z[12]?></div>
-	<?php } else { ?>
-	<div class="bu"><?php echo $z[12]?></div>
-	<div class="bu"><?php echo $z[13]?></div>
-		
-	<?php }	?>
+<? endif;?>
+	<?php //} ?>
 			</div>
-	<?php  } 
+	<?php endforeach; 
 	$gldat = $z[4];
 	$gltime = $z[5];
 }
-} 
+
 ?>
 	
 <div style="height:3em;clear:both;">&nbsp;</div>
-	
-	
-<?php	
-//**************
-//ab hier Maske zur Festlegung des Zeitfensters
-} else { ?>
-<p style='clear:left;'>Observer:<br/>
-	<?php echo $this->observer;?></p>
-<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
-<?php
-//SQL: alle Instrumente dieses Beobachters:
-$sql="SELECT * from tl_instrument WHERE i_id=".$this->userid." AND i_inputpref!='inactive'";
+<? endif; //Ende showresults = 1;?>
 
-$instr=mysql_query($sql) or die(mysql_error()); ?>
+<?//*********************************
+//Kein Zeitfenster/Instrument festgelegt?>
+<? if($this->showresults!=1 ):?>
+<div style='clear:left;'>Observer: 
+[<? echo $this->observer?>] <? echo $this->lname?> <? echo $this->fname?>, <?php echo $this->city?> (<? echo $this->country?>)</div>
+	<div style="width:100%;clear:left;height:0;border-bottom:#999 solid thin;margin-bottom:1.5em;margin-top:0;">&nbsp;</div>
+
 <form name='choose' class="selectform" action='review.html' method='post'>
 <input type="hidden" name="REQUEST_TOKEN" value="{{request_token}}">
 <input type="hidden" name="showresults" value="1">
-<?php if(mysql_num_rows($instr)==0):?>
-	<p>There are no active instruments for your id in our database.<br/>Please activate an instrument or request a new instrument entry by the webmaster!</p>
+
+<?php $heute = date("d.m.Y");?>
+
+  <?php if(empty($this->allinstr)):?>
+	<p>There are no instruments for your id in our database.<br/>Please request a new instrument entry by the webmaster!</p>
 	<?php else:?>
 	
-	<div style='height:50px;width:auto;' class='wolfform'>
-	<div style='float:left;text-align:right; width:160px; padding-top:4px;vertical-align:middle;margin-right:15px;'>Choose your instrument</div>
-	<div style='vertical-align:top;width:300px;text-align:left;clear:right; float:left;'>
-	<SELECT name='inst' size='1'>
-	<?php while($ins=mysql_fetch_row($instr)):?>
-		<option value='<? echo $ins[0]?>'><? echo $ins[4]?> <? echo $ins[5]?>/<? echo $ins[6]?> <? echo $ins[7]?> Mag. <? echo $ins[9]?></option>
-		<?php endwhile;?>
-	</SELECT></div></div>
-	<?php $heute = date("d.m.Y");?>
-	
+	<div class='form-group w5'>
+	<label for "chinst">Choose your instrument</label>
+	<SELECT name='inst' id="chinst" class="form-control">
+        
+        <?php if ($this->allinstr): foreach ($this->allinstr as $ains): ?>
+		<option value='<? echo $ains['id']?>' <?php if (!strcmp($this->code, $ains['id'])) {echo "selected=\"selected\"";} ?>><? echo $ains['id']?>|<?php echo $ains['i_type'].' '.$ains['i_aperture'].'/'.$ains['i_focal_length'].' '.$ains['i_filter'].' Mag. '.$ains['i_magnification']?></option>
+		<? endforeach; endif;?>
+	</SELECT>
+</div>  
+    <? endif;?>
 	<div style="height:30px;">
-	<div style="float:left;text-align:right; width:160px; vertical-align:top;margin-right:15px;clear:left;">&nbsp;</div>
 	<div style="float:left;vertical-align:top;width:400px;text-align:left;">Please type in a date span or choose a specific month!</div>
 	</div>
-	<div style="height:30px;">
-	<div style="float:left;text-align:right; width:160px; vertical-align:top;margin-right:15px;clear:left;">Data from</div>
-	<div style="float:left;vertical-align:top;width:90px;text-align:left;"><input type="text" value="<?php echo $heute?>" name="datefr" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy" autofocus="autofocus"></div>
-	<div style="float:left;text-align:right; width:30px; vertical-align:top;margin-right:10px;">to</div>
-	<div style="float:left;vertical-align:top;width:150px;text-align:left;"><input type="text" value="<?php echo $heute?>" name="dateto" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy"><span style="margin-left:35px;text-align:right;">or</span></div>
-	<div style="float:left;text-align:right; width:108px;height:20px;margin:0 1em 0 35px;"><SELECT name="mo" size="1">
-	<?php $mth=array("choose month","January","February","March","April","May","June","July","August","September","October","November","December");
-	reset($mth);?>
-	<?php foreach($mth as $key => $val):?>
-		<option value="<? echo $key?>"><? echo $val?></option>	
-	<?php endforeach;
-	$acyr=date("Y");?>
-	</select>
+	<div class="flex">
+      <div class="form-group">
+      <label for "datafrom">Data from</label><input type="text"  id="datafrom" name="datefr" class="form-control w100" value="<?php echo $heute?>" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy">
+      </div>
+      <div class="form-group" style="margin:0 1em;">
+      <label for "datato">to</label><input type="text" value="<?php echo $heute?>" id="datato" name="dateto" class="form-control w100" data-validation="birthdate" size="10" data-validation-format="dd.mm.yyyy">
+      </div>
+    
+    <div class="form-group" style="margin:0 1em;">
+	<label for "chomon">or choose a month</label>
+        <SELECT name="mo" id="chomon" class="form-control w200" size="1">
+      <?php $mth=array("choose month","January","February","March","April","May","June","July","August","September","October","November","December");
+      reset($mth);?>
+      <?php foreach($mth as $key => $val):?>
+          <option value="<? echo $key?>"><? echo $val?></option>	
+      <?php endforeach;
+      $acyr=date("Y");?>
+	    </select>
 	</div>
-	<div style="float:left;text-align:left; width:50px;margin-left:7px;clear:right;">
-	<input type="text" value="<?php echo $acyr?>" name="yr" data-validation="number" size="4" data-validation-allowing="range[1980;<?php echo $acyr?>]">
+    
+    <div class="form-group">
+	<label for "choyear">&nbsp;</label>
+	<input type="text" id="choyear" value="<?php echo $acyr?>" class="form-control w75" name="yr" data-validation="number" size="4" data-validation-allowing="range[1980;<?php echo $acyr?>]">
 	</div></div>
-	<div><div style='float:left;text-align:right; width:160px; vertical-align:top;margin-right:15px;clear:left;'>&nbsp;</div><div style='margin-top:20px;'><button type='submit' name='insave' value='go'>go</button></div></div>
+	<div class="form-group"><button type='submit' class="btn btn-primary" name='insave' value='go'>continue</button></div>
 	 <?php endif;?>
  
 </form>
-<?php }?>
+<?php //endif;?>
 </div>
+
+<script type="text/javascript">
+
+
+</script>
